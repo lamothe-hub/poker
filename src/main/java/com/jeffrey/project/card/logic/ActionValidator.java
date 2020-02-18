@@ -6,6 +6,13 @@ import org.springframework.stereotype.Component;
 import com.jeffrey.project.card.model.GameState;
 import com.jeffrey.project.card.model.player.Player;
 
+import exceptions.InvalidBetException;
+import exceptions.InvalidCallException;
+import exceptions.InvalidCheckException;
+import exceptions.InvalidFoldException;
+import exceptions.OutOfTurnException;
+import exceptions.PlayerDoesNotExistException;
+
 @Component
 public class ActionValidator {
 
@@ -22,51 +29,37 @@ public class ActionValidator {
 	GameState gameState;
 	
 	
-	public String isValidBet(String playerName, double amount) {
+	public Player isValidBet(String playerName, double amount) {
 		// check if it is that player's turn and if it is a valid betsize 
 		Player player = gameState.getPlayersList().getPlayerByName(playerName);
-		if(player == null) {
-			return "Player '" + playerName + "' does not exist";
-		}
-		String message = "";
-		if(!isPlayersTurn(player)) {
-			message = "It is not " + player.getName() + "'s turn. ";
-		} else if(!isValidBetSize(player, amount)) {
-			message += amount + " is not a valid bet size. "; 
-		}
-		
-		return message;
+		if(player == null) throw(new PlayerDoesNotExistException(playerName));
+		if(!isPlayersTurn(player)) throw(new OutOfTurnException(player));
+		if(!isValidBetSize(player, amount)) throw(new InvalidBetException(playerName, amount));
+		return player;
 	}
 	
-	public String isValidCall(String playerName, double amount) {
+	public Player isValidCall(String playerName, double amount) {
 		Player player = gameState.getPlayersList().getPlayerByName(playerName); 
-		if(player == null) {
-			return "Player '" + playerName + "' does not exist";
-		}
-		String message = ""; 
-		if(!isPlayersTurn(player)) {
-			message = "It is not " + player.getName() + "'s turn. ";
-		} else if(!isValidCallSize(player, amount)) {
-			message += amount + " is not a valid call size. "; 
-		}
-		
-		return message;
+		if(player == null) throw(new PlayerDoesNotExistException(playerName));
+		if(!isPlayersTurn(player)) throw(new OutOfTurnException(player));
+		if(!isValidCallSize(player, amount)) throw(new InvalidCallException(playerName, amount));
+		return player;
 	}
 	
-	public String isValidCheck(String playerName) {
-		String message = "";
-		
+	public Player isValidCheck(String playerName) {		
 		Player player = gameState.getPlayersList().getPlayerByName(playerName); 
-		if(player == null) {
-			return "Player '" + playerName + "' does not exist";
-		}
-		if(!isPlayersTurn(player)) {
-			message = "It is not " + player.getName() + "'s turn. ";
-		} else if(!alreadyBetOrCalled(player)) {
-			message = "Player '" + playerName + "' is not allowed to check here";
-		}
-		
-		return message;
+		if(player == null) throw(new PlayerDoesNotExistException(playerName));
+		if(!isPlayersTurn(player)) throw(new OutOfTurnException(player));
+		if(!alreadyBetOrCalled(player)) throw(new InvalidCheckException(playerName));
+		return player;
+	}
+	
+	public Player isValidFold(String playerName) {
+		Player player = gameState.getPlayersList().getPlayerByName(playerName); 
+		if(player == null) throw(new PlayerDoesNotExistException(playerName));
+		if(!isPlayersTurn(player)) throw(new OutOfTurnException(player));
+		if(player.getStatus() == "allIn") throw(new InvalidFoldException(playerName));
+		return player;
 	}
 	
 	public boolean alreadyBetOrCalled(Player player) {
@@ -95,7 +88,10 @@ public class ActionValidator {
 	}
 	
 	public boolean isValidBetSize(Player player, double amount) {
-		if(amount >= gameState.getBigBlind() + gameState.getMostRecentBetSize()) {
+		if(amount - player.getCurrAmountThisRound() > player.getChipCount()) {
+			return false;
+		}
+		if(amount - player.getCurrAmountThisRound() >= gameState.getBigBlind() + gameState.getMostRecentBetSize()) {
 			return true;
 		} else if(amount == player.getChipCount()) {
 			return true;

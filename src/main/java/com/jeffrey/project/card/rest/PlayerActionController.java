@@ -3,6 +3,7 @@ package com.jeffrey.project.card.rest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
@@ -11,8 +12,10 @@ import com.jeffrey.project.card.logic.ActionValidator;
 import com.jeffrey.project.card.logic.GameStateManager;
 import com.jeffrey.project.card.logic.JsonFriendlyConverter;
 import com.jeffrey.project.card.logic.JsonFriendlyConverter.JsonFriendlyGameState;
+import com.jeffrey.project.card.model.GameState;
 
 @RestController
+@CrossOrigin
 public class PlayerActionController {
 	
     private static final Logger logger = LoggerFactory.getLogger(StateController.class);
@@ -29,22 +32,35 @@ public class PlayerActionController {
     @Autowired 
     JsonFriendlyConverter jsonFriendlyConverter;
     
-	@GetMapping("/action/bet/{playerName}/{amount}")
-	public String bet(@PathVariable String playerName, @PathVariable double amount) {
-		String message = actionValidator.isValidBet(playerName, amount);
-		return message;
+    @Autowired 
+    GameState gameState;
+    
+	@GetMapping("/action/{playerName}/bet/{amount}")
+	public JsonFriendlyGameState bet(@PathVariable String playerName, @PathVariable double amount) {
+		gameStateManager.placeBet(playerName, amount);
+		JsonFriendlyGameState jsonFriendlyGameState = jsonFriendlyConverter.convert(gameState); 
+		return jsonFriendlyGameState; 
 	}
 	
-	@GetMapping("/action/call/{playerName}/{amount}")
-	public String call(@PathVariable String playerName, @PathVariable double amount) {
-		String message = actionValidator.isValidCall(playerName, amount);
-		return message;
+	@GetMapping("/action/{playerName}/call/{amount}")
+	public JsonFriendlyGameState call(@PathVariable String playerName, @PathVariable double amount) {
+		gameStateManager.makeCall(playerName, amount);
+		JsonFriendlyGameState jsonFriendlyGameState = jsonFriendlyConverter.convert(gameState); 
+		return jsonFriendlyGameState;
 	}
 	
-	@GetMapping("/action/check/{playerName}")
-	public String call(@PathVariable String playerName) {
-		String message = actionValidator.isValidCheck(playerName);
-		return message;
+	@GetMapping("/action/{playerName}/check")
+	public JsonFriendlyGameState check(@PathVariable String playerName) {
+		gameStateManager.check(playerName);
+		JsonFriendlyGameState jsonFriendlyGameState = jsonFriendlyConverter.convert(gameState); 
+		return jsonFriendlyGameState;
+	}
+	
+	@GetMapping("/action/{playerName}/fold")
+	public JsonFriendlyGameState fold(@PathVariable String playerName) {
+		gameStateManager.fold(playerName);
+		JsonFriendlyGameState jsonFriendlyGameState = jsonFriendlyConverter.convert(gameState); 
+		return jsonFriendlyGameState;
 	}
     
 }

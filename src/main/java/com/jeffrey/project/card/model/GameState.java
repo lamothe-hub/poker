@@ -24,6 +24,7 @@ public class GameState {
 	double bigBlind;
 	double pot;
 	double mostRecentBetSize; 
+	Player mostRecentActionReset; 
 	
 	public GameState() {
 		
@@ -40,7 +41,7 @@ public class GameState {
 		this.river = null;
 		this.runStatus = "running";
 		this.smallBlind = 1; 
-		this.bigBlind = 110;
+		this.bigBlind = 2;
 		this.pot = 0;
 		addPlayer("Jeffrey",  100); 
 		addPlayer("Johnny",  100);
@@ -125,12 +126,13 @@ public class GameState {
 			addToPot(bigBlind);
 		}
 		this.mostRecentBetSize = this.bigBlind;
-		bigBlindPlayer.setToBet();
+		bigBlindPlayer.setToBB();
 				
 		//set the action: 
 		Player firstActionPlayer = playersList.getDealer().next.next.next; 
 		firstActionPlayer.setToAction(); 
 		currTurn = firstActionPlayer;
+		mostRecentActionReset = firstActionPlayer;
 	}
 	
 	public void dealCards() {
@@ -268,6 +270,14 @@ public class GameState {
 
 	public void setPot(double pot) {
 		this.pot = pot;
+	}
+
+	public Player getMostRecentActionReset() {
+		return mostRecentActionReset;
+	}
+
+	public void setMostRecentActionReset(Player mostRecentBettor) {
+		this.mostRecentActionReset = mostRecentBettor;
 	}
 
 	@Override

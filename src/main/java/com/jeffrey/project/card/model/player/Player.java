@@ -2,6 +2,9 @@ package com.jeffrey.project.card.model.player;
 
 import com.jeffrey.project.card.model.card.Hand;
 
+import exceptions.InvalidBetException;
+import exceptions.InvalidCallException;
+
 public class Player {
 
 	String name;
@@ -19,7 +22,8 @@ public class Player {
 	 * 		-folded: this player has folded the hand
 	 * 		-bet: this player has bet and is awaiting player responses
 	 * 		-called: this player has already called the bet 
-	 * 		-NA: this is the status of a player upon initialization 
+	 * 		-allIn
+	 * 		-NA: this is the status of a player upon initialization  
 	 */
 	
 	public Player(String name, double chipCount) {
@@ -32,6 +36,33 @@ public class Player {
 		this.currentHand = new Hand();
 	}
 	
+	public double placeBet(double amount) {
+		// real amount accounts for chipCount jsut to make sure we didnt miss anything
+		double additionalAmount = amount - currAmountThisRound;
+		chipCount -= additionalAmount; 
+		currAmountThisRound += additionalAmount; 
+		currAmountInPot += additionalAmount; 
+		setToBet();
+		return additionalAmount;
+	
+	}
+	
+	public double makeCall(double amount, double mostRecentBetSize) {
+		double realAmount;
+		realAmount = mostRecentBetSize - currAmountThisRound;
+		if(realAmount != amount) {
+			throw(new InvalidCallException(name, amount));
+		}
+		chipCount -= realAmount; 
+		currAmountThisRound += realAmount; 
+		currAmountInPot += realAmount; 
+		setToCalled();
+		return realAmount;
+		
+	}
+
+	
+	
 	public void subtractChips(double chipLoss) {
 		chipCount -= chipLoss;
 	}
@@ -40,10 +71,13 @@ public class Player {
 		chipCount += chipGain;
 	}
 	public void setToCalled() {
-		status = "Called";
+		status = "called";
 	}
 	public void setToBet() {
 		status = "bet";
+	}
+	public void setToChecked() {
+		status = "checked";
 	}
 	public void setToFolded() {
 		status = "folded";
@@ -51,8 +85,12 @@ public class Player {
 	public void setToWaiting() {
 		status = "waiting";
 	} 
+	
 	public void setToAction() {
 		status = "action";
+	}
+	public void setToBB() {
+		status = "bigBlind";
 	}
 	
 	public String getName() {
