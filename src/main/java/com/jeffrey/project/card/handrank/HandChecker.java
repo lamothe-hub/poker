@@ -16,9 +16,9 @@ public class HandChecker {
 	@Autowired 
 	GameState gameState;
 	
-	public List<Integer> determineWinner(List<Hand> hands) {
+	public List<Player> determineWinner() {
 		// add the index(s) of the winner(s) to this list and return it at the end: 
-		List<Integer> winnerList = new ArrayList<Integer>();
+		List<Player> winnerList = new ArrayList<Player>();
 		
 		/*
 		 * 

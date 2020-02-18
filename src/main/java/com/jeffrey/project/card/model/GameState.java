@@ -14,7 +14,7 @@ import com.jeffrey.project.card.model.player.PlayersList;
 public class GameState {
 	
 	PlayersList playersList;
-	String runStatus; // preflop, flop, turn, river, unning, paused, notStarted
+	String runStatus; // preflop, flop, turn, river, running, paused, notStarted
 	Deck deck;
 	List<Card> flop;
 	Card turn;
