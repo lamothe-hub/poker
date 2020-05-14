@@ -1,10 +1,11 @@
-package com.jeffrey.project.card.model;
+package com.jeffrey.project.poker.model;
 
 public class TestPing {
-	String message; 
-	
-	public TestPing() {}
-	
+	String message;
+
+	public TestPing() {
+	}
+
 	public TestPing(String message) {
 		this.message = message;
 	}
@@ -16,5 +17,5 @@ public class TestPing {
 	public void setMessage(String message) {
 		this.message = message;
 	}
-	
+
 }

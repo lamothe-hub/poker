@@ -1,6 +1,6 @@
-package exceptions;
+package com.jeffrey.project.poker.exceptions;
 
-import com.jeffrey.project.card.model.player.Player;
+import com.jeffrey.project.poker.model.player.Player;
 
 public class OutOfTurnException extends RuntimeException {
 
@@ -9,7 +9,5 @@ public class OutOfTurnException extends RuntimeException {
 	public OutOfTurnException(Player player) {
 		super("It is not " + player.getName() + "'s turn.");
 	}
-	
-	
-	
+
 }

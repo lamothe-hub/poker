@@ -3,8 +3,9 @@ package com.jeffrey.project.card.model;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import com.jeffrey.project.card.logic.JsonFriendlyConverter;
-import com.jeffrey.project.card.logic.JsonFriendlyConverter.JsonFriendlyGameState;
+import com.jeffrey.project.poker.logic.JsonFriendlyConverter;
+import com.jeffrey.project.poker.logic.JsonFriendlyConverter.JsonFriendlyGameState;
+import com.jeffrey.project.poker.model.GameState;
 
 public class JsonFriendlyConverterTests {
 	

@@ -1,11 +1,12 @@
-package com.jeffrey.project.card.model.card;
+package com.jeffrey.project.poker.model.card;
 
 public class Card {
-	
+
 	private int number; // Jack: 11; Queen: 12; King: 13; Ace: 14
 	private int suit; // 1: spades; 2: hearts; 3: clubs; 4: diamonds;
 
-	public Card() {}
+	public Card() {
+	}
 
 	public Card(int number, int suit) {
 		this.number = number;
@@ -27,5 +28,5 @@ public class Card {
 	public void setSuit(int suit) {
 		this.suit = suit;
 	}
-	
+
 }

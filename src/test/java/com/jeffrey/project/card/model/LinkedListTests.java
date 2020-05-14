@@ -4,7 +4,7 @@ import java.util.List;
 
 import org.junit.Test;
 
-import com.jeffrey.project.card.model.player.PlayersList;
+import com.jeffrey.project.poker.model.player.PlayersList;
 
 public class LinkedListTests {
 

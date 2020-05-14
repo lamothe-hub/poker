@@ -1,6 +1,4 @@
-package exceptions;
-
-import com.jeffrey.project.card.model.player.Player;
+package com.jeffrey.project.poker.exceptions;
 
 public class InvalidBetException extends RuntimeException {
 
@@ -9,5 +7,5 @@ public class InvalidBetException extends RuntimeException {
 	public InvalidBetException(String playerName, double amount) {
 		super(playerName + " can not place a bet of " + amount + " at this time");
 	}
-	
+
 }
