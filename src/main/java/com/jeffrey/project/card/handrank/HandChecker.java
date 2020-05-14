@@ -5,11 +5,10 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import com.jeffrey.project.card.model.GameState;
-import com.jeffrey.project.card.model.card.Card;
-import com.jeffrey.project.card.model.card.Hand;
-import com.jeffrey.project.card.model.player.Player;
-import com.jeffrey.project.card.model.player.*;
+import com.jeffrey.project.poker.model.GameState;
+import com.jeffrey.project.poker.model.card.Card;
+import com.jeffrey.project.poker.model.card.Hand;
+import com.jeffrey.project.poker.model.player.Player;
 
 @Component
 public class HandChecker {
