@@ -1,9 +1,7 @@
-package com.jeffrey.project.card.model.player;
+package com.jeffrey.project.poker.model.player;
 
-import com.jeffrey.project.card.model.card.Hand;
-
-import exceptions.InvalidBetException;
-import exceptions.InvalidCallException;
+import com.jeffrey.project.poker.exceptions.InvalidCallException;
+import com.jeffrey.project.poker.model.card.Hand;
 
 public class Player {
 

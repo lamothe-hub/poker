@@ -1,4 +1,4 @@
-package exceptions;
+package com.jeffrey.project.poker.exceptions;
 
 public class InvalidCallException extends RuntimeException {
 
