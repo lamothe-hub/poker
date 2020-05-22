@@ -26,7 +26,7 @@ public class AssignHandStrengthTest {
 
 	
 	@Before
-	public void initPlayerList() { 
+	public void resetCards() { 
 		handChecker = new HandChecker();
 		flop = new ArrayList<Card>(); 
 		turn = null; 
