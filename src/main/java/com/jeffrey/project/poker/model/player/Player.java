@@ -24,6 +24,10 @@ public class Player {
 	 * 		-NA: this is the status of a player upon initialization  
 	 */
 	
+	public Player(String name) {
+		this.name = name;
+	}
+	
 	public Player(String name, double chipCount) {
 		this.name = name; 
 		this.chipCount = chipCount; 

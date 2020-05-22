@@ -1,4 +1,4 @@
-package com.jeffrey.project.card.model;
+package com.jeffrey.project.poker.test;
 
 import java.util.List;
 
