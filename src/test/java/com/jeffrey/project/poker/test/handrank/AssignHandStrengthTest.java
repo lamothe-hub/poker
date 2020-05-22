@@ -1,6 +1,7 @@
 package com.jeffrey.project.poker.test.handrank;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 import java.util.ArrayList;
 import java.util.Hashtable;
@@ -759,6 +760,33 @@ public class AssignHandStrengthTest {
 		
 	}
 	
+	@Test
+	public void nullCardTestA() {
+		
+		String testName = "nullCardTestA";
+		System.out.println("\n*** Starting " + testName + " - all 5 deck cards are null ***");
+		
+		setDeck('N');
+
+		Hand testHand = new Hand(
+				new Card(14, 1),
+				new Card(13, 1)
+		);
+		
+		
+		try {
+			int handStrength = handChecker.assignHandStrength(testHand, flop, turn, river);
+			System.out.println(handStrength);
+			assertNotNull(handStrength);
+			System.out.println("--- " + testName + " passed successfully.");
+
+		} catch(NullPointerException ex) {
+			System.err.println("Error: assignHandStrength has an unhandled NullPointerException. Please handle.");
+			throw ex;
+		}
+		
+	}
+	
 	
 	
 	
@@ -867,6 +895,14 @@ public class AssignHandStrengthTest {
 			flop.add(new Card(13, 3));
 			turn = new Card(12, 3); 
 			river = new Card(10, 3); 
+			break;	
+		case 'N': 
+			// boarded royal flush
+			flop.add(null);
+			flop.add(null); 
+			flop.add(null);
+			turn = null; 
+			river = null; 
 			break;	
 		}
 		
