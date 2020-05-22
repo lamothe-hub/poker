@@ -1,4 +1,4 @@
-package com.jeffrey.project.poker.test;
+package com.jeffrey.project.poker.test.model;
 
 import java.util.List;
 
