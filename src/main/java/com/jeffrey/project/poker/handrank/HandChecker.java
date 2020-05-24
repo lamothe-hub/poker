@@ -1,6 +1,6 @@
 /*
  * AUTHOR: John Zorc
- * Date: May 18 2020
+ * Last Edit Date: May 21 2020
  * Email: johnny.zorc@gmail.com
  * 
  * Description: The purpose of this class is to provide the determine winner function
@@ -21,120 +21,90 @@ import com.jeffrey.project.poker.model.player.Player;
 
 @Component
 public class HandChecker {
+	public static final int ROYAL_FLUSH       = 9000000;
+	public static final int STRAIGHT_FLUSH    = 8000000; // + highCard
+	public static final int FOUR_OF_A_KIND    = 7000000; // + (Fours Card Rank * 15) + highCard
+	public static final int FULL_HOUSE        = 6000000; // + (3's Value * 15) + 2's Value
+	public static final int FLUSH             = 5000000; // + highCard
+	public static final int STRAIGHT          = 4000000; // + highCard
+	public static final int THREE_OF_A_KIND   = 3000000; // + (3's value * 211) + ( High1 * 15 ) + High2
+	public static final int TWO_PAIR          = 2000000; // + (High * 211) + (Low * 15) + card
+	public static final int ONE_PAIR          = 1000000; // + (pair * 2955) + high1 * 211 + high2 * 15 + high3
 
-	//@Autowired 
-	//GameState gameState;
-	
-	public HandChecker() {}
+	@Autowired 
+	GameState gameState;
 			
 	//Returns a list of players in the order that they are ranked
 	public ArrayList<ArrayList<Player>> determineWinner(List<Player> allPlayers, List<Card> flop, Card turn, Card river) {
-		
-		// We want this to be modularized so we can pass in any list of players (don't want to hardcode current gamestate)
-		
-		// List<Player> allPlayers = gameState.getAllPlayers();//Player at index 0 should be Master
+		//List<Player> allPlayers = gameState.getAllPlayers();//Player at index 0 should be Master
 		ArrayList<ArrayList<Player>> rankingsList = new ArrayList<ArrayList<Player>>();
+		ArrayList<Card> communityCards = new ArrayList<Card>();
 		int numPlayers = allPlayers.size();
 		int[] handRankings = new int[numPlayers];
-		int currBestHandVal; //Used to make list of lists
-		int numOfTiedHands = 0;
-		int currList = 0; 
-		int currHandIndex = 0; //Use to keep track of insertions into list of list
+		int[] finalRankings = new int[numPlayers];
 		Player currPlayer;
+		int currList = 0;
+		int lastHighVal = 10000000;//A higher value than possible so that the next high will be less than it on the first iteration
+		int currHighVal = 0;
+		int inserted = 0;
+		
+		communityCards.add(flop.get(0));
+		communityCards.add(flop.get(1));
+		communityCards.add(flop.get(2));
+		communityCards.add(turn);
+		communityCards.add(river);
+		
 		
 		//Initiate lists of lists
 		for(int i = 0; i < numPlayers; i++) {
 			rankingsList.add(new ArrayList<Player>());
 		}
 		
-		//Give each player their hand rank where the i'th index corresponds to the i'th index in allPlayers list
+		//ASSIGN EACH PLAYER A TYPE OF HAND
 		for(int i = 0; i < numPlayers; i++) {
 			currPlayer = allPlayers.get(i); 
-			handRankings[i] = assignHandStrength(currPlayer.getHand(), flop, turn, river);
-		}
- 
-		//Order the players by types of hands best to worst(Ties not checked here)
-		for(int i = 1; i < numPlayers; i++) {
-			for(int j = i; j > 0 ; j--) {
-				if(handRankings[j] < handRankings[j - 1]) {
-					int temp = handRankings[j];
-					Player tempPlayerHolder = allPlayers.get(j);
-					allPlayers.set(j, allPlayers.get(j-1));
-					allPlayers.set(j-1, tempPlayerHolder);
-					handRankings[j] = handRankings[j -1];
-					handRankings[j - 1] = temp;
-				}
-			}
+			handRankings[i] = handChecker(currPlayer.getHand(), communityCards);
 		}
 		
-		//Check for duplicate values and determine if tie, add to the rankingsList
-		currBestHandVal = handRankings[0];
+		//ADD VALUES TO GIVEN VALUES FOR EACH HAND TYPE TO BREAK TIES
 		for(int i = 0; i < numPlayers; i++) {
-			if(handRankings[i] == currBestHandVal) {
-				numOfTiedHands++;
-			}
-			else {
-				//No tie, just insert the one player into their own list
-				if(numOfTiedHands == 1) {
-					rankingsList.get(currList).set(0, allPlayers.get(currHandIndex));
-					currHandIndex++;
-					numOfTiedHands = 0;
-					currList++;
-					currBestHandVal = handRankings[i];
-				}
-				//There is a tie, rank the ties then insert based in the rank of the ties
-				else {
-					ArrayList<Hand> tiedHands = new ArrayList<Hand>();
-					int handsInserted = 0;
-					int[] handValues = new int[numOfTiedHands];
-					
-					//Add all the hands of the tied hand type to an array
-					for(int j = 0; j < numOfTiedHands; j++) {
-						tiedHands.add(allPlayers.get(currHandIndex + j).getCurrentHand());
-					}
-					
-					//Return values starting at 1 that increase when the hand gets worse
-					//So all hands with value == 1 are tied as best hands of that hand type
-					handValues = tieChecker(tiedHands, currBestHandVal, flop, turn, river);
-					int currTieVal = 1;
-					int playersInsertedInList = 0;
-					while(handsInserted < numOfTiedHands) {
-						//Insert all hands of tied value into a list then ++ list, and the currTieVal
-						for(int j = 0; j < numOfTiedHands; j++) {
-							if(handValues[j] == currTieVal) {
-								rankingsList.get(currList).set(playersInsertedInList, allPlayers.get(currHandIndex + j));
-								playersInsertedInList++;
-								handsInserted++;
-							}	
-						}
-						playersInsertedInList = 0;
-						currList++;
-						currTieVal++;
-					}
-					currHandIndex = currHandIndex + numOfTiedHands;
-					numOfTiedHands = 0;
-					currBestHandVal = handRankings[i];
+			int handType = handRankings[i];
+			currPlayer = allPlayers.get(i);
+			finalRankings[i] = finalRankCalculator(currPlayer.getHand(), handType, communityCards);
+		}
+ 
+		//ASSIGNED EACH PLAYER TO A LIST
+		while(inserted < numPlayers) {
+			//Get highest remaining value/s
+			for(int i = 0; i < numPlayers; i++) {
+				if(finalRankings[i] > currHighVal && finalRankings[i] < lastHighVal) {
+					currHighVal = finalRankings[i];
 				}
 			}
+			//Insert into currList all the highest remaining value/s
+			for(int i = 0; i < numPlayers; i++) {
+				if(finalRankings[i] == currHighVal) {
+					rankingsList.get(currList).add(allPlayers.get(i));
+					inserted++;
+				}
+			}
+			lastHighVal = currHighVal;
+			currHighVal = 0;
+			currList++;
 		}
 		return rankingsList; 
 	}
 	
 	
-	/* This function will return an int based on how good the hand was 
-	 * 1: Royal Flush, 2: Strait Flush, 3: Quads, 4: Full House, 5: Flush, 6: Stright, 7: Trips
-	 * 8: Two Pair, 9: Pair, 10: High card
-	 */
-	public int assignHandStrength(Hand currHand, List<Card> flop, Card turn, Card river) {
-		//Get all of the community cards dealt
+	// 1: Royal Flush, 2: Strait Flush ... 9: High Card
+	public int handChecker(Hand currHand, ArrayList<Card> communityCards) {
+		//Get all of the community cards dealt 
 		ArrayList<Card> playableCards = new ArrayList<Card>();
 		playableCards.add(currHand.getCardA());
 		playableCards.add(currHand.getCardB());
-		playableCards.add(turn);
-		playableCards.add(river);
-		playableCards.add(flop.get(0));
-		playableCards.add(flop.get(1));
-		playableCards.add(flop.get(2));
+		for(int i = 0; i < communityCards.size(); i++) {
+			playableCards.add(communityCards.get(i));
+		}
 		 
 		if(isRoyalFlush(playableCards)) {
 			return 1;
@@ -167,50 +137,50 @@ public class HandChecker {
 			return 10;
 	}
 	
-	//This function will take in an array of hands and a tie specifier number  
-	//RETURN ARRAY NUMBERS ASSOCIATED WITH TIED HAND RANK WHERE 1 IS BEST THEN 2...
-	public int[] tieChecker(ArrayList<Hand> tiedHands, int tieNumber, List<Card> flop, Card turn, Card river) {
-		int numOfTiedHands = tiedHands.size();
-		ArrayList<Card> communityCards = new ArrayList<Card>();
-		int[] handValues = new int[numOfTiedHands];
+	//Add's value to the hand type to break ties
+	public int finalRankCalculator(Hand currHand, int handType, ArrayList<Card> communityCards) {
+		ArrayList<Card> playableCards = new ArrayList<Card>();
+		playableCards.add(currHand.getCardA());
+		playableCards.add(currHand.getCardB());
+		for(int i = 0; i < communityCards.size(); i++) {
+			playableCards.add(communityCards.get(i));
+		}
 		
-		communityCards.add(river);
-		communityCards.add(turn);
-		communityCards.add(flop.get(0));
-		communityCards.add(flop.get(1));
-		communityCards.add(flop.get(2));
+		int returnVal = 0;
 		
-		if(tieNumber == 1) {
-			for(int i = 0; i < numOfTiedHands; i++) {
-				handValues[i] = 1;
-			}
+		if(handType == 1)
+			returnVal = ROYAL_FLUSH; 
+		else if(handType == 2) {
+			returnVal = straitFlushRanker(playableCards);
 		}
-		else if(tieNumber == 2) {
-			handValues = straitFlushTieRanker(tiedHands, communityCards);
+		else if(handType == 3) {
+			returnVal = quadsRanker(playableCards);
 		}
-		else if(tieNumber == 3) {
-			handValues = quadsTieRanker(tiedHands, communityCards);
+		else if(handType == 4) {
+			returnVal = fullHouseRanker(playableCards);
 		}
-		else if(tieNumber == 4) {
-			handValues = fullHouseTieRanker(tiedHands, communityCards);
+		else if(handType == 5) {
+			returnVal = flushRanker(playableCards);
 		}
-		else if(tieNumber == 5) {
-			handValues = flushTieRanker(tiedHands, communityCards);
+		else if(handType == 6) {
+			returnVal = straightRanker(playableCards);
 		}
-		else if(tieNumber == 6) {
-			handValues = straitTieRanker(tiedHands, communityCards);
+		else if(handType == 7) {
+			returnVal = tripsRanker(playableCards);
 		}
-		else if(tieNumber == 7) {
-			handValues = tripsTieRanker(tiedHands, communityCards);
+		else if(handType == 8) {
+			returnVal = twoPairRanker(playableCards);
 		}
-		else if(tieNumber == 8) {
-			handValues = twoPairTieRanker(tiedHands, communityCards);
+		else if(handType == 9) {
+			returnVal = pairRanker(playableCards);
 		}
-		else if(tieNumber == 9) {
-			handValues = pairTieRanker(tiedHands, communityCards);
+		else if(handType == 10) {
+			returnVal = highCardRanker(playableCards);
 		}
-		return handValues;
+		return returnVal;
 	}
+	
+	/* ===== HAND TYPE CHECKER FUNCTIONS ===== */
 	
 	public boolean isRoyalFlush(ArrayList<Card> playableCards) {
 		boolean running = true; 
@@ -242,35 +212,34 @@ public class HandChecker {
 		}
 		return false;
 	}
+	
 	public boolean isStraitFlush(ArrayList<Card> playableCards) {
-		boolean running = true; 
 		int runSize = 0;
 		int currNumber;
-		int runSuit; //Check this on every number that is currNumber + 1
+		int runSuit;
+		boolean running = true;
 		
-		//look for a run of length 5
 		for (int i = 0; i < playableCards.size(); i++) {
 			runSize = 1;
 			currNumber = playableCards.get(i).getNumber();
 			runSuit = playableCards.get(i).getSuit();
-			
 			while(running) {
-				running = false; 
-				if(runSize == 5)
-					return true;
+				running = false;
 				for(int j = 0; j < playableCards.size(); j++) {
-					//Is next card 1 greater than currCard and also the same suit 
 					if( (playableCards.get(j).getNumber() == currNumber + 1) && (playableCards.get(j).getSuit() == runSuit)) {
 						currNumber = playableCards.get(j).getNumber();
-						running = true; 
 						runSize += 1;
-						break;
+						running = true;
 					}
+				}
+				if(runSize >= 5) {
+					return true;
 				}
 			}
 		}
 		return false; 
 	}
+
 	public boolean isQuads(ArrayList<Card> playableCards) {
 		int currNumber;
 		int counter = 0;
@@ -289,12 +258,14 @@ public class HandChecker {
 		}
 		return false;
 	}
+
 	public boolean isFullHouse(ArrayList<Card> playableCards) {
 		if( (isPair(playableCards)) && (isTrips(playableCards)) )
 			return true;
 		else 
 			return false;
 	}
+
 	public boolean isFlush(ArrayList<Card> playableCards) {
 		int count = 0;
 		
@@ -314,32 +285,31 @@ public class HandChecker {
 		
 		return false;
 	}
+
 	public boolean isStrait(ArrayList<Card> playableCards) {
-		boolean running = true; //used to see check for runs of 5
 		int runSize = 0;
 		int currNumber;
+		boolean running = true;
 		
-		//look for a run of length 5
 		for (int i = 0; i < playableCards.size(); i++) {
 			runSize = 1;
 			currNumber = playableCards.get(i).getNumber();
-			
 			while(running) {
-				running = false; 
-				if(runSize == 5)
-					return true;
+				running = false;
 				for(int j = 0; j < playableCards.size(); j++) {
 					if(playableCards.get(j).getNumber() == currNumber + 1) {
-						currNumber = playableCards.get(j).getNumber();
-						running = true; 
+						currNumber = playableCards.get(j).getNumber(); 
 						runSize += 1;
-						break;
+						running = true;
 					}
 				}
+				if(runSize >= 5) 
+					return true;
 			}
 		}
 		return false; 
 	}
+
 	public boolean isTrips(ArrayList<Card> playableCards) {
 		int currNumber;
 		int counter = 0;
@@ -358,15 +328,14 @@ public class HandChecker {
 		}
 		return false;
 	}
+	
 	public boolean isTwoPair(ArrayList<Card> playableCards) {
-		int currNumber;
 		int numForPairOne = 0;
 		boolean foundOnePair = false; 
 		
 		for(int i = 0; i < playableCards.size(); i++) {
-			currNumber = playableCards.get(i).getNumber();
-			for(int j = i + 1; j < playableCards.size(); j ++){
-				if(playableCards.get(j).getNumber() == currNumber) {
+			for(int j = i + 1; j < playableCards.size(); j++){
+				if(playableCards.get(j).getNumber() == playableCards.get(i).getNumber()) {
 					if(foundOnePair == false) {
 						numForPairOne = playableCards.get(j).getNumber();
 						foundOnePair = true;
@@ -381,123 +350,323 @@ public class HandChecker {
 		}
 		return false;
 	}
+	
 	public boolean isPair(ArrayList<Card> playableCards) {
 		int currNumber;
+		int counter = 0;
 		
 		for(int i = 0; i < playableCards.size(); i++) {
 			currNumber = playableCards.get(i).getNumber();
 			for(int j = i + 1; j < playableCards.size(); j ++){
 				if(playableCards.get(j).getNumber() == currNumber) {
-					return true;
+					counter++;
 				}
 			}
+			if(counter == 2)
+				return true;
+			else
+				counter = 0;
 		}
 		return false;
 	}
 	
-	public int[] straitFlushTieRanker(ArrayList<Hand> tiedHands, ArrayList<Card> communityCards) {
-		int[] tiedHandRankings = new int[tiedHands.size()];
-		return tiedHandRankings;
-	}
-	public int[] quadsTieRanker(ArrayList<Hand> tiedHands, ArrayList<Card> communityCards) {
-		int[] tiedHandRankings = new int[tiedHands.size()];
-		return tiedHandRankings;
-	}
-	public int[] fullHouseTieRanker(ArrayList<Hand> tiedHands, ArrayList<Card> communityCards) {
-		int[] tiedHandRankings = new int[tiedHands.size()];
-		return tiedHandRankings;
-	}
-	public int[] flushTieRanker(ArrayList<Hand> tiedHands, ArrayList<Card> communityCards) {
-		int[] tiedHandRankings = new int[tiedHands.size()];
-		return tiedHandRankings;
-	}
-	public int[] straitTieRanker(ArrayList<Hand> tiedHands, ArrayList<Card> communityCards) {
-		int[] tiedHandRankings = new int[tiedHands.size()];
-		return tiedHandRankings;
-	}
-	public int[] tripsTieRanker(ArrayList<Hand> tiedHands, ArrayList<Card> communityCards) {
-		int[] tiedHandRankings = new int[tiedHands.size()];
-		return tiedHandRankings;
-	}
-	public int[] twoPairTieRanker(ArrayList<Hand> tiedHands, ArrayList<Card> communityCards) {
-		int[] tiedHandRankings = new int[tiedHands.size()];
-		return tiedHandRankings;
-	}
-	public int[] pairTieRanker(ArrayList<Hand> tiedHands, ArrayList<Card> communityCards) {
-		int numOfTiedHands = tiedHands.size();
-		int[] tiedHandRankings = new int[numOfTiedHands];
-		int[] highPair = new int[numOfTiedHands];
-		int currNum;
-		int lastHighestPair = 15; 
-		int inserted = 0;
-		int currHandRanking = 1;
+
+	
+	/* ===== RANKER FUNCTIONS FOR EACH HAND TYPE ===== */
+	
+	public int straitFlushRanker(ArrayList<Card> playableCards) {
+		int returnVal = STRAIGHT_FLUSH;
+		int highCard = 0;
+		int runSize = 0;
+		int currNumber;
+		int runSuit;
+		boolean running = true;
 		
-		for(int i = 0; i < numOfTiedHands; i++) {
-			int currHighPair = 0;
-			ArrayList<Card> currPlayableCards = new ArrayList<Card>();
-			currPlayableCards.add(tiedHands.get(i).getCardA());
-			currPlayableCards.add(tiedHands.get(i).getCardB());
-			currPlayableCards.add(communityCards.get(0));
-			currPlayableCards.add(communityCards.get(1));
-			currPlayableCards.add(communityCards.get(2));
-			currPlayableCards.add(communityCards.get(3));
-			currPlayableCards.add(communityCards.get(4));
-			
-			for(int j = 0; j < currPlayableCards.size(); j++) {
-				currNum = currPlayableCards.get(j).getNumber();
-				for(int k = j + 1; k < currPlayableCards.size(); k++) {
-					if(currPlayableCards.get(k).getNumber() == currNum && currNum >= currHighPair)
-						currHighPair = currNum;
+		for (int i = 0; i < playableCards.size(); i++) {
+			runSize = 1;
+			currNumber = playableCards.get(i).getNumber();
+			runSuit = playableCards.get(i).getSuit();
+			while(running) {
+				running = false;
+				for(int j = 0; j < playableCards.size(); j++) {
+					if( (playableCards.get(j).getNumber() == currNumber + 1) && (playableCards.get(j).getSuit() == runSuit)) {
+						currNumber = playableCards.get(j).getNumber();
+						runSize += 1;
+						running = true;
+						if(runSize >= 5)
+							highCard = playableCards.get(j).getNumber();
+					}
 				}
 			}
-			highPair[i] = currHighPair;
-		}
-		while(inserted < numOfTiedHands) {
-			int tempHigh = 0;
-			for(int i = 0; i < numOfTiedHands; i++) {
-				if(highPair[i] >= tempHigh && highPair[i] < lastHighestPair) {
-					tempHigh = highPair[i];
-				}
-			}
-			for(int i = 0; i < numOfTiedHands; i++) {
-				if(highPair[i] == tempHigh) {
-					tiedHandRankings[i] = currHandRanking;
-					inserted++;
-				}
-			}
-			currHandRanking++;
-			lastHighestPair = tempHigh; 
 		}
 		
-		return tiedHandRankings;
+		
+		
+		returnVal = returnVal + highCard;
+		return returnVal;
 	}
+	
+	public int quadsRanker(ArrayList<Card> playableCards) {
+		int returnVal = FOUR_OF_A_KIND;
+		int quadsVal = 0;
+		int highCard = 0;
+		int counter = 0;
+		int currVal;
+		
+		for(int i = 0; i < playableCards.size(); i++) {
+			currVal = playableCards.get(i).getNumber();
+			for(int j = i + 1; j < playableCards.size(); j++) {
+				if(currVal == playableCards.get(j).getNumber())
+					counter++;
+			}
+			if(counter == 4) {
+				quadsVal = playableCards.get(i).getNumber();
+				break;
+			}
+			else {
+				counter = 0;
+			}
+		}
+		for(int i = 0; i < playableCards.size(); i++) {
+			if(playableCards.get(i).getNumber() != quadsVal && playableCards.get(i).getNumber() > highCard)
+				highCard = playableCards.get(i).getNumber();
+		}
+		
+		returnVal = returnVal + (quadsVal * 15) + highCard;
+		return returnVal;
+	}
+	
+	public int fullHouseRanker(ArrayList<Card> playableCards) {
+		int returnVal = FULL_HOUSE;
+		int tripsVal = 0;
+		int pairVal = 0;
+		int counter = 0;
+		int currVal;
+		
+		for(int i = 0; i < playableCards.size(); i++) {
+			currVal = playableCards.get(i).getNumber();
+			for(int j = i + 1; j < playableCards.size(); j++) {
+				if(currVal == playableCards.get(j).getNumber())
+					counter++;
+			}
+			if(counter == 2) {
+				pairVal = playableCards.get(i).getNumber();
+			}
+			else if (counter == 3) {
+				tripsVal = playableCards.get(i).getNumber();
+			}
+			counter = 0;		
+		}
+		
+		returnVal = returnVal + (tripsVal * 15) + pairVal;
+		
+		return returnVal;
+	}
+	
+	public int flushRanker(ArrayList<Card> playableCards) {
+		int returnVal = FLUSH;
+		int count = 0;
+		int highCard = 0;
+		
+		for (int i = 0; i < playableCards.size(); i++) {
+			int currSuit = playableCards.get(i).getSuit();
+			for(int j = i + 1; j < playableCards.size(); j++) {
+				if(playableCards.get(j).getSuit() == currSuit) {
+					count++;
+					if(playableCards.get(j).getNumber() > highCard)
+						highCard = playableCards.get(j).getNumber();
+				}
+			}
+			if(count >= 5) {
+				break;
+			}
+			else 
+				count = 0;
+				highCard = 0;
+		}
+		returnVal = returnVal + highCard;
+		
+		return returnVal;
+	}
+	
+	public int straightRanker(ArrayList<Card> playableCards) {
+		int returnVal = STRAIGHT;
+		int runSize = 0;
+		int currNumber;
+		int highCard = 0;
+		boolean foundRun = false;
+		
+		//look for a run of length 5
+		for (int i = 0; i < playableCards.size(); i++) {
+			runSize = 1;
+			currNumber = playableCards.get(i).getNumber();
+			for(int j = i + 1; j < playableCards.size(); j++) {
+				if(playableCards.get(j).getNumber() == currNumber + 1) {
+					currNumber = playableCards.get(j).getNumber();
+					runSize += 1;
+				}
+				else {
+					runSize = 1;
+				}
+				if(runSize == 5) {
+					highCard = playableCards.get(j).getNumber();
+					foundRun = true;
+					break;
+				}
+			}
+			if(foundRun)
+				break;
+		}
+		returnVal = returnVal + highCard;
+		
+		return returnVal;
+	}
+	
+	public int tripsRanker(ArrayList<Card> playableCards) {
+		int returnVal = THREE_OF_A_KIND;
+		int tripsVal = 0;
+		int high1 = 0;
+		int high2 = 0;
+		int currCard;
+		int counter = 0;
+		
+		for(int i = 0; i < playableCards.size(); i++) {
+			currCard = playableCards.get(i).getNumber();
+			for (int j = i + 1; j < playableCards.size(); j++) {
+				if(playableCards.get(j).getNumber() == currCard)
+					counter++;
+			}
+			if(counter == 3) {
+				tripsVal = playableCards.get(i).getNumber();
+				break;
+			}
+			counter = 0;
+		}
+		for(int i = 0; i < playableCards.size(); i++) {
+			if (playableCards.get(i).getNumber() != tripsVal && playableCards.get(i).getNumber() > high1)
+				high1 = playableCards.get(i).getNumber();
+		}
+		for(int i = 0; i < playableCards.size(); i++) {
+			if (playableCards.get(i).getNumber() != tripsVal && playableCards.get(i).getNumber() != high1
+				&& playableCards.get(i).getNumber() > high2)
+				high2 = playableCards.get(i).getNumber();
+		}
+		returnVal = returnVal + (tripsVal * 211) + (high1 * 15) + high2;
+		
+		return returnVal;
+	}
+	
+	public int twoPairRanker(ArrayList<Card> playableCards) {
+		int returnVal = TWO_PAIR;
+		int pairOneVal = 0;
+		int pairTwoVal = 0;
+		int highCard = 0;
+		boolean foundOnePair = false;
+		
+		for(int i = 0; i < playableCards.size(); i++) {
+			for(int j = i + 1; j < playableCards.size(); j++){
+				if(playableCards.get(j).getNumber() == playableCards.get(i).getNumber()) {
+					if(foundOnePair == false) {
+						pairOneVal = playableCards.get(j).getNumber();
+						foundOnePair = true;
+					}
+					else {
+						if(playableCards.get(j).getNumber() != pairOneVal) {
+							pairTwoVal = playableCards.get(i).getNumber();
+						}
+					}
+				}
+			}
+		}
+		
+		
+		for(int i = 0; i < playableCards.size(); i++) {
+			if(playableCards.get(i).getNumber() != pairOneVal && playableCards.get(i).getNumber() != pairTwoVal 
+				&& playableCards.get(i).getNumber() > highCard)
+				highCard = playableCards.get(i).getNumber();
+		}
+		returnVal = returnVal + (pairOneVal * 211) + (pairTwoVal * 15) + (highCard);
+		
+		return returnVal;
+	}
+	
+	public int pairRanker(ArrayList<Card> playableCards) {
+		int returnVal = ONE_PAIR;
+		int pairVal = 0;
+		int high1 = 0;
+		int high2 = 0;
+		int high3 = 0;
+		
+		for(int i = 0; i < playableCards.size(); i++) {
+			for(int j = i + 1; j < playableCards.size(); j ++){
+				if(playableCards.get(j).getNumber() == playableCards.get(i).getNumber()) {
+					pairVal = playableCards.get(i).getNumber();
+					break;
+				}
+			}
+		}
+		
+		for(int i = 0; i < playableCards.size(); i++) {
+			if(playableCards.get(i).getNumber() != pairVal && playableCards.get(i).getNumber() > high1)
+				high1 = playableCards.get(i).getNumber();
+		}
+		for(int i = 0; i < playableCards.size(); i++) {
+			if(playableCards.get(i).getNumber() != pairVal && playableCards.get(i).getNumber() != high1 
+				&& playableCards.get(i).getNumber() > high2)
+				high2 = playableCards.get(i).getNumber();
+		}
+		for(int i = 0; i < playableCards.size(); i++) {
+			if(playableCards.get(i).getNumber() != pairVal && playableCards.get(i).getNumber() != high1 
+				&& playableCards.get(i).getNumber() != high2 && playableCards.get(i).getNumber() > high3)
+					high3 = playableCards.get(i).getNumber();
+		}
+		
+		returnVal = returnVal + (pairVal * 2955) + (high1 * 211) + (high2 * 15) + (high3);
+		
+		return returnVal;
+	}
+	
+	public int highCardRanker(ArrayList<Card> playableCards) {
+		int returnVal = 0;
+		int high1 = 0;
+		int high2 = 0;
+		int high3 = 0;
+		int high4 = 0;
+		int high5 = 0;
+		int currNum; 
+		
+		for(int i = 0; i < playableCards.size(); i++) {
+			currNum = playableCards.get(i).getNumber();
+			if(currNum > high1)
+				high1 = currNum;
+		}
+		
+		for(int i = 0; i < playableCards.size(); i++) {
+			currNum = playableCards.get(i).getNumber();
+			if(currNum != high1 && currNum > high2)
+				high2 = currNum;
+		}
+		
+		for(int i = 0; i < playableCards.size(); i++) {
+			currNum = playableCards.get(i).getNumber();
+			if(currNum != high1 && currNum != high2 && currNum > high3)
+				high3 = currNum;
+		}
+		
+		for(int i = 0; i < playableCards.size(); i++) {
+			currNum = playableCards.get(i).getNumber();
+			if(currNum != high1 && currNum != high2 && currNum != high3 && currNum > high4)
+				high4 = currNum;
+		}
+		
+		for(int i = 0; i < playableCards.size(); i++) {
+			currNum = playableCards.get(i).getNumber();
+			if(currNum != high1 && currNum != high2 && currNum != high3 && currNum != high4 && currNum > high5)
+				high5 = currNum;
+		}
+		returnVal = returnVal + (high1 * 41370) + (high2 * 2955) + (high3 * 211) + (high4 * 15) + high5;
+		
+		return returnVal;
+	}
+
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
