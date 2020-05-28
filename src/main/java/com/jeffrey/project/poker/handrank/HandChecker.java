@@ -63,7 +63,7 @@ public class HandChecker {
 		//ASSIGN EACH PLAYER A TYPE OF HAND
 		for(int i = 0; i < numPlayers; i++) {
 			currPlayer = allPlayers.get(i); 
-			handRankings[i] = handChecker(currPlayer.getHand(), communityCards);
+			handRankings[i] = assignHandStrength(currPlayer.getHand(), communityCards);
 		}
 		
 		//ADD VALUES TO GIVEN VALUES FOR EACH HAND TYPE TO BREAK TIES
@@ -97,7 +97,7 @@ public class HandChecker {
 	
 	
 	// 1: Royal Flush, 2: Strait Flush ... 9: High Card
-	public int handChecker(Hand currHand, ArrayList<Card> communityCards) {
+	public int assignHandStrength(Hand currHand, ArrayList<Card> communityCards) {
 		//Get all of the community cards dealt 
 		ArrayList<Card> playableCards = new ArrayList<Card>();
 		playableCards.add(currHand.getCardA());

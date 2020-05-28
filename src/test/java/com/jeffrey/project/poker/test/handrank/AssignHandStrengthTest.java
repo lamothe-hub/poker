@@ -20,6 +20,8 @@ public class AssignHandStrengthTest {
 
 	
 	private HandChecker handChecker;
+	
+	ArrayList<Card> communityCards;
 	List<Card> flop; 
 	Card turn; 
 	Card river;
@@ -27,6 +29,7 @@ public class AssignHandStrengthTest {
 	
 	@Before
 	public void resetCards() { 
+		communityCards = new ArrayList<Card>();
 		handChecker = new HandChecker();
 		flop = new ArrayList<Card>(); 
 		turn = null; 
@@ -47,7 +50,7 @@ public class AssignHandStrengthTest {
 				new Card(5, 3)
 		);
 		
-		int handStrength = handChecker.assignHandStrength(testHand, flop, turn, river);
+		int handStrength = handChecker.assignHandStrength(testHand, communityCards);
 		
 		try {
 			assertEquals(10, handStrength);
@@ -74,7 +77,7 @@ public class AssignHandStrengthTest {
 				new Card(5, 3)
 		);
 		
-		int handStrength = handChecker.assignHandStrength(testHand, flop, turn, river);
+		int handStrength = handChecker.assignHandStrength(testHand, communityCards);
 		try {
 			assertEquals(10, handStrength);
 			System.out.println("--- " + testName + " passed successfully.");
@@ -99,7 +102,7 @@ public class AssignHandStrengthTest {
 				new Card(2, 3)
 		);
 		
-		int handStrength = handChecker.assignHandStrength(testHand, flop, turn, river);
+		int handStrength = handChecker.assignHandStrength(testHand, communityCards);
 		try {
 			assertEquals(9, handStrength);
 			System.out.println("--- " + testName + " passed successfully.");
@@ -124,7 +127,7 @@ public class AssignHandStrengthTest {
 				new Card(13, 3)
 		);
 		
-		int handStrength = handChecker.assignHandStrength(testHand, flop, turn, river);
+		int handStrength = handChecker.assignHandStrength(testHand, communityCards);
 		try {
 			assertEquals(9, handStrength);
 			System.out.println("--- " + testName + " passed successfully.");
@@ -149,7 +152,7 @@ public class AssignHandStrengthTest {
 				new Card(10, 3)
 		);
 		
-		int handStrength = handChecker.assignHandStrength(testHand, flop, turn, river);
+		int handStrength = handChecker.assignHandStrength(testHand, communityCards);
 		try {
 			assertEquals(9, handStrength);
 			System.out.println("--- " + testName + " passed successfully.");
@@ -174,7 +177,7 @@ public class AssignHandStrengthTest {
 				new Card(10, 3)
 		);
 		
-		int handStrength = handChecker.assignHandStrength(testHand, flop, turn, river);
+		int handStrength = handChecker.assignHandStrength(testHand, communityCards);
 		try {
 			assertEquals(8, handStrength);
 			System.out.println("--- " + testName + " passed successfully.");
@@ -199,7 +202,7 @@ public class AssignHandStrengthTest {
 				new Card(14, 3)
 		);
 		
-		int handStrength = handChecker.assignHandStrength(testHand, flop, turn, river);
+		int handStrength = handChecker.assignHandStrength(testHand, communityCards);
 		try {
 			assertEquals(8, handStrength);
 			System.out.println("--- " + testName + " passed successfully.");
@@ -224,7 +227,7 @@ public class AssignHandStrengthTest {
 				new Card(4, 3)
 		);
 		
-		int handStrength = handChecker.assignHandStrength(testHand, flop, turn, river);
+		int handStrength = handChecker.assignHandStrength(testHand, communityCards);
 		try {
 			assertEquals(7, handStrength);
 			System.out.println("--- " + testName + " passed successfully.");
@@ -250,7 +253,7 @@ public class AssignHandStrengthTest {
 				new Card(4, 3)
 		);
 		
-		int handStrength = handChecker.assignHandStrength(testHand, flop, turn, river);
+		int handStrength = handChecker.assignHandStrength(testHand, communityCards);
 		try {
 			assertEquals(7, handStrength);
 			System.out.println("--- " + testName + " passed successfully.");
@@ -276,7 +279,7 @@ public class AssignHandStrengthTest {
 				new Card(12, 3)
 		);
 		
-		int handStrength = handChecker.assignHandStrength(testHand, flop, turn, river);
+		int handStrength = handChecker.assignHandStrength(testHand, communityCards);
 		try {
 			assertEquals(7, handStrength);
 			System.out.println("--- " + testName + " passed successfully.");
@@ -301,7 +304,7 @@ public class AssignHandStrengthTest {
 				new Card(14, 3)
 		);
 		
-		int handStrength = handChecker.assignHandStrength(testHand, flop, turn, river);
+		int handStrength = handChecker.assignHandStrength(testHand, communityCards);
 		try {
 			assertEquals(6, handStrength);
 			System.out.println("--- " + testName + " passed successfully.");
@@ -326,7 +329,7 @@ public class AssignHandStrengthTest {
 				new Card(9, 3)
 		);
 		
-		int handStrength = handChecker.assignHandStrength(testHand, flop, turn, river);
+		int handStrength = handChecker.assignHandStrength(testHand, communityCards);
 		try {
 			assertEquals(6, handStrength);
 			System.out.println("--- " + testName + " passed successfully.");
@@ -351,7 +354,7 @@ public class AssignHandStrengthTest {
 				new Card(6, 3)
 		);
 		
-		int handStrength = handChecker.assignHandStrength(testHand, flop, turn, river);
+		int handStrength = handChecker.assignHandStrength(testHand, communityCards);
 		try {
 			assertEquals(6, handStrength);
 			System.out.println("--- " + testName + " passed successfully.");
@@ -376,7 +379,7 @@ public class AssignHandStrengthTest {
 				new Card(5, 3)
 		);
 		
-		int handStrength = handChecker.assignHandStrength(testHand, flop, turn, river);
+		int handStrength = handChecker.assignHandStrength(testHand, communityCards);
 		try {
 			assertEquals(6, handStrength);
 			System.out.println("--- " + testName + " passed successfully.");
@@ -401,7 +404,7 @@ public class AssignHandStrengthTest {
 				new Card(8, 1)
 		);
 		
-		int handStrength = handChecker.assignHandStrength(testHand, flop, turn, river);
+		int handStrength = handChecker.assignHandStrength(testHand, communityCards);
 		try {
 			assertEquals(5, handStrength);
 			System.out.println("--- " + testName + " passed successfully.");
@@ -426,7 +429,7 @@ public class AssignHandStrengthTest {
 				new Card(8, 1)
 		);
 		
-		int handStrength = handChecker.assignHandStrength(testHand, flop, turn, river);
+		int handStrength = handChecker.assignHandStrength(testHand, communityCards);
 		try {
 			assertEquals(5, handStrength);
 			System.out.println("--- " + testName + " passed successfully.");
@@ -451,7 +454,7 @@ public class AssignHandStrengthTest {
 				new Card(8, 1)
 		);
 		
-		int handStrength = handChecker.assignHandStrength(testHand, flop, turn, river);
+		int handStrength = handChecker.assignHandStrength(testHand, communityCards);
 		try {
 			assertEquals(5, handStrength);
 			System.out.println("--- " + testName + " passed successfully.");
@@ -476,7 +479,7 @@ public class AssignHandStrengthTest {
 				new Card(8, 1)
 		);
 		
-		int handStrength = handChecker.assignHandStrength(testHand, flop, turn, river);
+		int handStrength = handChecker.assignHandStrength(testHand, communityCards);
 		try {
 			assertEquals(5, handStrength);
 			System.out.println("--- " + testName + " passed successfully.");
@@ -501,7 +504,7 @@ public class AssignHandStrengthTest {
 				new Card(6, 1)
 		);
 		
-		int handStrength = handChecker.assignHandStrength(testHand, flop, turn, river);
+		int handStrength = handChecker.assignHandStrength(testHand, communityCards);
 		try {
 			assertEquals(4, handStrength);
 			System.out.println("--- " + testName + " passed successfully.");
@@ -526,7 +529,7 @@ public class AssignHandStrengthTest {
 				new Card(14, 1)
 		);
 		
-		int handStrength = handChecker.assignHandStrength(testHand, flop, turn, river);
+		int handStrength = handChecker.assignHandStrength(testHand, communityCards);
 		try {
 			assertEquals(4, handStrength);
 			System.out.println("--- " + testName + " passed successfully.");
@@ -551,7 +554,7 @@ public class AssignHandStrengthTest {
 				new Card(10, 3)
 		);
 		
-		int handStrength = handChecker.assignHandStrength(testHand, flop, turn, river);
+		int handStrength = handChecker.assignHandStrength(testHand, communityCards);
 		try {
 			assertEquals(4, handStrength);
 			System.out.println("--- " + testName + " passed successfully.");
@@ -576,7 +579,7 @@ public class AssignHandStrengthTest {
 				new Card(6, 3)
 		);
 		
-		int handStrength = handChecker.assignHandStrength(testHand, flop, turn, river);
+		int handStrength = handChecker.assignHandStrength(testHand, communityCards);
 		try {
 			assertEquals(3, handStrength);
 			System.out.println("--- " + testName + " passed successfully.");
@@ -601,7 +604,7 @@ public class AssignHandStrengthTest {
 				new Card(6, 3)
 		);
 		
-		int handStrength = handChecker.assignHandStrength(testHand, flop, turn, river);
+		int handStrength = handChecker.assignHandStrength(testHand, communityCards);
 		try {
 			assertEquals(3, handStrength);
 			System.out.println("--- " + testName + " passed successfully.");
@@ -626,7 +629,7 @@ public class AssignHandStrengthTest {
 				new Card(12, 2)
 		);
 		
-		int handStrength = handChecker.assignHandStrength(testHand, flop, turn, river);
+		int handStrength = handChecker.assignHandStrength(testHand, communityCards);
 		try {
 			assertEquals(3, handStrength);
 			System.out.println("--- " + testName + " passed successfully.");
@@ -651,7 +654,7 @@ public class AssignHandStrengthTest {
 				new Card(12, 2)
 		);
 		
-		int handStrength = handChecker.assignHandStrength(testHand, flop, turn, river);
+		int handStrength = handChecker.assignHandStrength(testHand, communityCards);
 		try {
 			assertEquals(2, handStrength);
 			System.out.println("--- " + testName + " passed successfully.");
@@ -676,7 +679,7 @@ public class AssignHandStrengthTest {
 				new Card(9, 1)
 		);
 		
-		int handStrength = handChecker.assignHandStrength(testHand, flop, turn, river);
+		int handStrength = handChecker.assignHandStrength(testHand, communityCards);
 		try {
 			assertEquals(2, handStrength);
 			System.out.println("--- " + testName + " passed successfully.");
@@ -700,7 +703,7 @@ public class AssignHandStrengthTest {
 				new Card(5, 1)
 		);
 		
-		int handStrength = handChecker.assignHandStrength(testHand, flop, turn, river);
+		int handStrength = handChecker.assignHandStrength(testHand, communityCards);
 		try {
 			assertEquals(2, handStrength);
 			System.out.println("--- " + testName + " passed successfully.");
@@ -724,7 +727,7 @@ public class AssignHandStrengthTest {
 				new Card(5, 1)
 		);
 		
-		int handStrength = handChecker.assignHandStrength(testHand, flop, turn, river);
+		int handStrength = handChecker.assignHandStrength(testHand, communityCards);
 		try {
 			assertEquals(1, handStrength);
 			System.out.println("--- " + testName + " passed successfully.");
@@ -748,7 +751,7 @@ public class AssignHandStrengthTest {
 				new Card(13, 1)
 		);
 		
-		int handStrength = handChecker.assignHandStrength(testHand, flop, turn, river);
+		int handStrength = handChecker.assignHandStrength(testHand, communityCards);
 		try {
 			assertEquals(1, handStrength);
 			System.out.println("--- " + testName + " passed successfully.");
@@ -775,7 +778,7 @@ public class AssignHandStrengthTest {
 		
 		
 		try {
-			int handStrength = handChecker.assignHandStrength(testHand, flop, turn, river);
+			int handStrength = handChecker.assignHandStrength(testHand, communityCards);
 			System.out.println(handStrength);
 			assertNotNull(handStrength);
 			System.out.println("--- " + testName + " passed successfully.");
@@ -794,115 +797,115 @@ public class AssignHandStrengthTest {
 		switch(deckChoice) {
 		case 'A':
 			// high card boarded
-			flop.add(new Card(12, 1));
-			flop.add(new Card(11, 1)); 
-			flop.add(new Card(10, 1));
-			turn = new Card(4, 2); 
-			river = new Card(6, 3); 
+			communityCards.add(new Card(12, 1));
+			communityCards.add(new Card(11, 1)); 
+			communityCards.add(new Card(10, 1));
+			communityCards.add(new Card(4, 2)); 
+			communityCards.add(new Card(6, 3)); 
 			break;
 		case 'B': 
 			// top pair boarded
-			flop.add(new Card(12, 1));
-			flop.add(new Card(12, 3)); 
-			flop.add(new Card(10, 1));
-			turn = new Card(4, 2); 
-			river = new Card(6, 3); 
+			communityCards.add(new Card(12, 1));
+			communityCards.add(new Card(12, 3)); 
+			communityCards.add(new Card(10, 1));
+			communityCards.add(new Card(4, 2)); 
+			communityCards.add(new Card(6, 3)); 
 			break;
 		case 'C': 
 			// bottom pair boarded
-			flop.add(new Card(2, 1));
-			flop.add(new Card(11, 3)); 
-			flop.add(new Card(10, 1));
-			turn = new Card(2, 2); 
-			river = new Card(5, 3); 
+			communityCards.add(new Card(2, 1));
+			communityCards.add(new Card(11, 3)); 
+			communityCards.add(new Card(10, 1));
+			communityCards.add(new Card(2, 2)); 
+			communityCards.add(new Card(5, 3)); 
 			break;
 		case 'D': 
 			// two pair boarded
-			flop.add(new Card(2, 1));
-			flop.add(new Card(11, 3)); 
-			flop.add(new Card(11, 1));
-			turn = new Card(2, 2); 
-			river = new Card(5, 4); 
+			communityCards.add(new Card(2, 1));
+			communityCards.add(new Card(11, 3)); 
+			communityCards.add(new Card(11, 1));
+			communityCards.add(new Card(2, 2)); 
+			communityCards.add(new Card(5, 4)); 
 			break;
 		case 'E': 
 			// three of a kind boarded
-			flop.add(new Card(11, 2));
-			flop.add(new Card(11, 3)); 
-			flop.add(new Card(11, 1));
-			turn = new Card(2, 2); 
-			river = new Card(5, 3); 
+			communityCards.add(new Card(11, 2));
+			communityCards.add(new Card(11, 3)); 
+			communityCards.add(new Card(11, 1));
+			communityCards.add(new Card(2, 2)); 
+			communityCards.add(new Card(5, 3)); 
 			break;
 		case 'F': 
 			// low straight draw w over pair
-			flop.add(new Card(2, 2));
-			flop.add(new Card(3, 3)); 
-			flop.add(new Card(14, 1));
-			turn = new Card(14, 2); 
-			river = new Card(4, 3); 
+			communityCards.add(new Card(2, 2));
+			communityCards.add(new Card(3, 3)); 
+			communityCards.add(new Card(14, 1));
+			communityCards.add(new Card(14, 2)); 
+			communityCards.add(new Card(4, 3)); 
 			break;	
 		case 'G': 
 			// boarded flush
-			flop.add(new Card(2, 4));
-			flop.add(new Card(3, 4)); 
-			flop.add(new Card(14, 4));
-			turn = new Card(13, 4); 
-			river = new Card(4, 4); 
+			communityCards.add(new Card(2, 4));
+			communityCards.add(new Card(3, 4)); 
+			communityCards.add(new Card(14, 4));
+			communityCards.add(new Card(13, 4)); 
+			communityCards.add(new Card(4, 4)); 
 			break;	
 		case 'H': 
 			// 4-card flush draw boarded
-			flop.add(new Card(2, 4));
-			flop.add(new Card(3, 4)); 
-			flop.add(new Card(14, 4));
-			turn = new Card(13, 4); 
-			river = new Card(4, 1); 
+			communityCards.add(new Card(2, 4));
+			communityCards.add(new Card(3, 4)); 
+			communityCards.add(new Card(14, 4));
+			communityCards.add(new Card(13, 4)); 
+			communityCards.add(new Card(4, 1)); 
 			break;	
 		case 'I': 
 			// boarded full house
-			flop.add(new Card(2, 4));
-			flop.add(new Card(2, 3)); 
-			flop.add(new Card(2, 2));
-			turn = new Card(13, 4); 
-			river = new Card(13, 3); 
+			communityCards.add(new Card(2, 4));
+			communityCards.add(new Card(2, 3)); 
+			communityCards.add(new Card(2, 2));
+			communityCards.add(new Card(13, 4)); 
+			communityCards.add(new Card(13, 3)); 
 			break;	
 		case 'J': 
 			// boarded quads
-			flop.add(new Card(2, 4));
-			flop.add(new Card(2, 3)); 
-			flop.add(new Card(2, 2));
-			turn = new Card(2, 1); 
-			river = new Card(13, 3); 
+			communityCards.add(new Card(2, 4));
+			communityCards.add(new Card(2, 3)); 
+			communityCards.add(new Card(2, 2));
+			communityCards.add(new Card(2, 1)); 
+			communityCards.add(new Card(13, 3)); 
 			break;	
 		case 'K': 
 			// boarded straight flush
-			flop.add(new Card(3, 1));
-			flop.add(new Card(4, 1)); 
-			flop.add(new Card(5, 1));
-			turn = new Card(6, 1); 
-			river = new Card(7, 1); 
+			communityCards.add(new Card(3, 1));
+			communityCards.add(new Card(4, 1)); 
+			communityCards.add(new Card(5, 1));
+			communityCards.add(new Card(6, 1)); 
+			communityCards.add(new Card(7, 1)); 
 			break;	
 		case 'L': 
 			// A-5 straight flush draw
-			flop.add(new Card(2, 1));
-			flop.add(new Card(3, 1)); 
-			flop.add(new Card(4, 1));
-			turn = new Card(7, 3); 
-			river = new Card(7, 4); 
+			communityCards.add(new Card(2, 1));
+			communityCards.add(new Card(3, 1)); 
+			communityCards.add(new Card(4, 1));
+			communityCards.add(new Card(7, 3)); 
+			communityCards.add(new Card(7, 4)); 
 			break;
 		case 'M': 
 			// boarded royal flush
-			flop.add(new Card(14, 3));
-			flop.add(new Card(11, 3)); 
-			flop.add(new Card(13, 3));
-			turn = new Card(12, 3); 
-			river = new Card(10, 3); 
+			communityCards.add(new Card(14, 3));
+			communityCards.add(new Card(11, 3)); 
+			communityCards.add(new Card(13, 3));
+			communityCards.add(new Card(12, 3)); 
+			communityCards.add(new Card(10, 3)); 
 			break;	
 		case 'N': 
 			// boarded royal flush
-			flop.add(null);
-			flop.add(null); 
-			flop.add(null);
-			turn = null; 
-			river = null; 
+			communityCards.add(null);
+			communityCards.add(null); 
+			communityCards.add(null);
+			communityCards.add(null); 
+			communityCards.add(null); 
 			break;	
 		}
 		
