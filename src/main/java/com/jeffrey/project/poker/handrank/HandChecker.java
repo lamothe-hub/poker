@@ -327,6 +327,13 @@ public class HandChecker {
 				counter = 0;
 		}
 		return false;
+		/*
+		 * Error: 
+		 *   since we are starting the counter at 0, we want to 
+		 *   check if the counter matches 2 (2 matches to the original 
+		 *   makes 3). If it gets 3 matches it is quads. 
+		 *   
+		 */
 	}
 	
 	public boolean isTwoPair(ArrayList<Card> playableCards) {
