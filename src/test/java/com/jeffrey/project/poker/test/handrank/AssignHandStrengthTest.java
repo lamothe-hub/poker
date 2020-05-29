@@ -20,20 +20,13 @@ public class AssignHandStrengthTest {
 
 	
 	private HandChecker handChecker;
-	
 	ArrayList<Card> communityCards;
-	List<Card> flop; 
-	Card turn; 
-	Card river;
 
 	
 	@Before
-	public void resetCards() { 
-		communityCards = new ArrayList<Card>();
+	public void resetCards() {
 		handChecker = new HandChecker();
-		flop = new ArrayList<Card>(); 
-		turn = null; 
-		river = null;
+		communityCards = new ArrayList<Card>();
 	}
 
 	
