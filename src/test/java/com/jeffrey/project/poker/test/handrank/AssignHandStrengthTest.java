@@ -239,7 +239,7 @@ public class AssignHandStrengthTest {
 		String testName = "threeOfAKindTestB";
 		System.out.println("\n*** Starting " + testName + " - pair boarded trips with a hole card ***");
 		
-		setDeck('B');
+		setDeck('O');
 
 		Hand testHand = new Hand(
 				new Card(12, 1),
@@ -262,7 +262,7 @@ public class AssignHandStrengthTest {
 	@Test 
 	public void threeOfAKindTestC() {
 		
-		String testName = "threeOfAKindTestB";
+		String testName = "threeOfAKindTestC";
 		System.out.println("\n*** Starting " + testName + " - hole pair trips for a set ***");
 		
 		setDeck('A');
@@ -340,7 +340,7 @@ public class AssignHandStrengthTest {
 		String testName = "straightTestC";
 		System.out.println("\n*** Starting " + testName + " - straight with an over pair ***");
 		
-		setDeck('A');
+		setDeck('F');
 
 		Hand testHand = new Hand(
 				new Card(5, 1),
@@ -362,7 +362,7 @@ public class AssignHandStrengthTest {
 	@Test
 	public void straightTestD() {
 		
-		String testName = "straightTestA";
+		String testName = "straightTestD";
 		System.out.println("\n*** Starting " + testName + " - A-5 straight ***");
 		
 		setDeck('L');
@@ -565,7 +565,7 @@ public class AssignHandStrengthTest {
 		String testName = "quadsTestA";
 		System.out.println("\n*** Starting " + testName + " - quads boarded ***");
 		
-		setDeck('B');
+		setDeck('J');
 
 		Hand testHand = new Hand(
 				new Card(5, 4),
@@ -756,7 +756,7 @@ public class AssignHandStrengthTest {
 		
 	}
 	
-	@Test
+	/*@Test
 	public void nullCardTestA() {
 		
 		String testName = "nullCardTestA";
@@ -781,7 +781,7 @@ public class AssignHandStrengthTest {
 			throw ex;
 		}
 		
-	}
+	}*/
 	
 	
 	
@@ -900,11 +900,16 @@ public class AssignHandStrengthTest {
 			communityCards.add(null); 
 			communityCards.add(null); 
 			break;	
+		case 'O': 
+			// top pair boarded
+			communityCards.add(new Card(12, 1));
+			communityCards.add(new Card(12, 3)); 
+			communityCards.add(new Card(10, 1));
+			communityCards.add(new Card(5, 2)); 
+			communityCards.add(new Card(6, 3)); 
+			break;
 		}
-		
-		
-		
-	
+
 	}
 
 }

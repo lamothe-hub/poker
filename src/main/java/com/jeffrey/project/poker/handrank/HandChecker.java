@@ -96,7 +96,7 @@ public class HandChecker {
 	}
 	
 	
-	// 1: Royal Flush, 2: Strait Flush ... 9: High Card
+	// 1: Royal Flush, 2: Strait Flush ... 10: High Card
 	public int assignHandStrength(Hand currHand, ArrayList<Card> communityCards) {
 		//Get all of the community cards dealt 
 		ArrayList<Card> playableCards = new ArrayList<Card>();
@@ -105,7 +105,7 @@ public class HandChecker {
 		for(int i = 0; i < communityCards.size(); i++) {
 			playableCards.add(communityCards.get(i));
 		}
-		 
+
 		if(isRoyalFlush(playableCards)) {
 			return 1;
 		}
@@ -177,6 +177,10 @@ public class HandChecker {
 		else if(handType == 10) {
 			returnVal = highCardRanker(playableCards);
 		}
+		//Just here to make sure that the game doesnt break if there are nullptrs passed to the assignHandStrength function
+		else if(handType == 11) {
+			returnVal = 0;
+		}
 		return returnVal;
 	}
 	
@@ -220,6 +224,7 @@ public class HandChecker {
 		boolean running = true;
 		
 		for (int i = 0; i < playableCards.size(); i++) {
+			running = true;
 			runSize = 1;
 			currNumber = playableCards.get(i).getNumber();
 			runSuit = playableCards.get(i).getSuit();
@@ -232,6 +237,12 @@ public class HandChecker {
 						running = true;
 					}
 				}
+				if(runSize == 4 && currNumber == 5) {
+					for(int j = 0; j < playableCards.size(); j++) {
+						if(playableCards.get(j).getNumber() == 14 && playableCards.get(j).getSuit() == runSuit)
+							return true;
+					}
+				}
 				if(runSize >= 5) {
 					return true;
 				}
@@ -242,19 +253,21 @@ public class HandChecker {
 
 	public boolean isQuads(ArrayList<Card> playableCards) {
 		int currNumber;
-		int counter = 0;
+		int counter = 1;
 		
 		for(int i = 0; i < playableCards.size(); i++) {
 			currNumber = playableCards.get(i).getNumber(); 
-			for(int j = i + 1; j < playableCards.size(); j ++) {
-				if(playableCards.get(j).getNumber() == currNumber) {
+			for(int j = 0; j < playableCards.size(); j ++) {
+				if(j == i)
+					continue;
+				else if(playableCards.get(j).getNumber() == currNumber) {
 					counter++; 
 				}
 			}
 			if(counter == 4)
 				return true;
 			else
-				counter = 0;
+				counter = 1;
 		}
 		return false;
 	}
@@ -267,7 +280,7 @@ public class HandChecker {
 	}
 
 	public boolean isFlush(ArrayList<Card> playableCards) {
-		int count = 0;
+		int count = 1;
 		
 		for (int i = 0; i < playableCards.size(); i++) {
 			int currSuit = playableCards.get(i).getSuit();
@@ -280,27 +293,35 @@ public class HandChecker {
 				return true;
 			}
 			else 
-				count = 0;
+				count = 1;
 		}
 		
 		return false;
 	}
 
 	public boolean isStrait(ArrayList<Card> playableCards) {
-		int runSize = 0;
+		int runSize;
 		int currNumber;
 		boolean running = true;
 		
 		for (int i = 0; i < playableCards.size(); i++) {
+			running = true;
 			runSize = 1;
 			currNumber = playableCards.get(i).getNumber();
 			while(running) {
 				running = false;
 				for(int j = 0; j < playableCards.size(); j++) {
-					if(playableCards.get(j).getNumber() == currNumber + 1) {
+					if(playableCards.get(j).getNumber() == (currNumber + 1)) {
 						currNumber = playableCards.get(j).getNumber(); 
-						runSize += 1;
+						runSize++;
+						//System.out.println("RUNSIZE:" + runSize);
 						running = true;
+					}
+				}
+				if(runSize == 4 && currNumber == 5) {
+					for(int j = 0; j < playableCards.size(); j++) {
+						if(playableCards.get(j).getNumber() == 14)
+							return true;
 					}
 				}
 				if(runSize >= 5) 
@@ -312,28 +333,23 @@ public class HandChecker {
 
 	public boolean isTrips(ArrayList<Card> playableCards) {
 		int currNumber;
-		int counter = 0;
+		int counter = 1;
 		
 		for(int i = 0; i < playableCards.size(); i++) {
 			currNumber = playableCards.get(i).getNumber(); 
-			for(int j = i + 1; j < playableCards.size(); j ++) {
-				if(playableCards.get(j).getNumber() == currNumber) {
+			for(int j = 0; j < playableCards.size(); j ++) {
+				if (i == j)
+					continue;
+				else if(playableCards.get(j).getNumber() == currNumber) {
 					counter++; 
 				}
 			}
 			if(counter == 3)
 				return true;
 			else
-				counter = 0;
+				counter = 1;
 		}
 		return false;
-		/*
-		 * Error: 
-		 *   since we are starting the counter at 0, we want to 
-		 *   check if the counter matches 2 (2 matches to the original 
-		 *   makes 3). If it gets 3 matches it is quads. 
-		 *   
-		 */
 	}
 	
 	public boolean isTwoPair(ArrayList<Card> playableCards) {
@@ -360,19 +376,21 @@ public class HandChecker {
 	
 	public boolean isPair(ArrayList<Card> playableCards) {
 		int currNumber;
-		int counter = 0;
+		int counter = 1;
 		
 		for(int i = 0; i < playableCards.size(); i++) {
 			currNumber = playableCards.get(i).getNumber();
-			for(int j = i + 1; j < playableCards.size(); j ++){
-				if(playableCards.get(j).getNumber() == currNumber) {
+			for(int j = 0; j < playableCards.size(); j ++){
+				if(i == j)
+					continue;
+				else if(playableCards.get(j).getNumber() == currNumber) {
 					counter++;
 				}
 			}
 			if(counter == 2)
 				return true;
 			else
-				counter = 0;
+				counter = 1;
 		}
 		return false;
 	}
@@ -472,7 +490,7 @@ public class HandChecker {
 	
 	public int flushRanker(ArrayList<Card> playableCards) {
 		int returnVal = FLUSH;
-		int count = 0;
+		int count = 1;
 		int highCard = 0;
 		
 		for (int i = 0; i < playableCards.size(); i++) {
@@ -488,7 +506,7 @@ public class HandChecker {
 				break;
 			}
 			else 
-				count = 0;
+				count = 1;
 				highCard = 0;
 		}
 		returnVal = returnVal + highCard;
