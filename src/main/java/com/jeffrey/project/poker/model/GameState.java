@@ -5,6 +5,8 @@ import java.util.List;
 
 import org.springframework.stereotype.Component;
 
+import com.jeffrey.project.poker.exceptions.GhostHandException;
+import com.jeffrey.project.poker.handrank.HandChecker;
 import com.jeffrey.project.poker.model.card.Card;
 import com.jeffrey.project.poker.model.card.Deck;
 import com.jeffrey.project.poker.model.player.Player;
@@ -83,17 +85,25 @@ public class GameState {
 		}
 		return players;
 	}
+	
+	public void distributeMoneyToWinners() {
+		HandChecker handChecker = new HandChecker();
+		ArrayList<ArrayList<Player>> rankingsList; 
+		//rankingsList =  
+	}
+	
 
-	public void startHand() {
+	public void startHand() throws GhostHandException {
 
 		playersList.setAllToWaiting();
 
-		runStatus = "preflop";
+		runStatus = "preFlop";
 
+		wipeChips();
 		dealCards();
 
 		// set the small blind:
-		Player smallBlindPlayer = playersList.getDealer().next;
+		Player smallBlindPlayer = playersList.getDealer().getNextInPlay();
 		if (smallBlindPlayer.getChipCount() < smallBlind) {
 			// take whatever they have and add it to the pot
 			double availableAmount = smallBlindPlayer.getChipCount();
@@ -110,7 +120,7 @@ public class GameState {
 		smallBlindPlayer.setToBet();
 
 		// set the big blind:
-		Player bigBlindPlayer = playersList.getDealer().next.next;
+		Player bigBlindPlayer = smallBlindPlayer.getNextInPlay();
 		if (bigBlindPlayer.getChipCount() < bigBlind) {
 			// take whatever they have and add it to the pot
 			double availableAmount = bigBlindPlayer.getChipCount();
@@ -128,7 +138,7 @@ public class GameState {
 		bigBlindPlayer.setToBB();
 
 		// set the action:
-		Player firstActionPlayer = playersList.getDealer().next.next.next;
+		Player firstActionPlayer = bigBlindPlayer.getNextInPlay();
 		firstActionPlayer.setToAction();
 		currTurn = firstActionPlayer;
 		mostRecentActionReset = firstActionPlayer;
@@ -159,6 +169,19 @@ public class GameState {
 		flop.add(deck.nextCard());
 		flop.add(deck.nextCard());
 		flop.add(deck.nextCard());
+	}
+	
+	public void wipeChips() throws GhostHandException {
+		this.pot = 0; 
+		this.mostRecentBetSize = 0; 
+		if(playersList.getPlayerCount() < 2) {
+			throw new GhostHandException(); 
+		}
+		Player currPlayer = playersList.getMaster(); 
+		do {
+			currPlayer.wipeChips();
+			currPlayer = currPlayer.getNext();
+		} while(currPlayer != playersList.getMaster());
 	}
 
 	public void dealTurn() {

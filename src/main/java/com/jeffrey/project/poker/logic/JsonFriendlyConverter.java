@@ -107,6 +107,9 @@ public class JsonFriendlyConverter {
 		Card turn;
 		Card river;
 		double pot;
+		double mostRecentBetSize;
+		String mostRecentActionReset; 
+		String currTurn;
 
 		public JsonFriendlyGameState() {
 		}
@@ -130,6 +133,9 @@ public class JsonFriendlyConverter {
 			this.turn = badlyFormattedState.getTurn();
 			this.river = badlyFormattedState.getRiver();
 			this.pot = badlyFormattedState.getPot();
+			this.mostRecentBetSize = badlyFormattedState.getMostRecentBetSize();
+			this.mostRecentActionReset = badlyFormattedState.getMostRecentActionReset().getName(); 
+			this.currTurn = badlyFormattedState.getCurrTurn().getName();
 		}
 
 		public List<JsonFriendlyPlayer> getPlayersList() {
@@ -195,6 +201,37 @@ public class JsonFriendlyConverter {
 		public double getPot() {
 			return pot;
 		}
+
+		public double getMostRecentBetSize() {
+			return mostRecentBetSize;
+		}
+
+		public void setMostRecentBetSize(double mostRecentBetSize) {
+			this.mostRecentBetSize = mostRecentBetSize;
+		}
+
+		public void setPot(double pot) {
+			this.pot = pot;
+		}
+
+		public String getMostRecentActionReset() {
+			return mostRecentActionReset;
+		}
+
+		public void setMostRecentActionReset(String mostRecentActionReset) {
+			this.mostRecentActionReset = mostRecentActionReset;
+		}
+
+		public String getCurrTurn() {
+			return currTurn;
+		}
+
+		public void setCurrTurn(String currTurn) {
+			this.currTurn = currTurn;
+		}
+		
+		
+		
 
 	}
 

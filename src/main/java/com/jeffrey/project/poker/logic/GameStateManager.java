@@ -31,7 +31,7 @@ public class GameStateManager {
 		}
 	}
 
-	public void makeCall(String playerName, double amount) {
+	public void makeCall(String playerName, double amount) throws Exception {
 		try {
 			Player player = actionValidator.isValidCall(playerName, amount);
 			double amountCalled = player.makeCall(amount, gameState.getMostRecentBetSize());
@@ -62,7 +62,7 @@ public class GameStateManager {
 		}
 	}
 
-	public boolean postActionHandle(Player prevPlayer) {
+	public boolean postActionHandle(Player prevPlayer) throws Exception{
 
 		/*
 		 * this method will change the status of the next player before entering this,
@@ -70,7 +70,7 @@ public class GameStateManager {
 		 */
 		Player nextPlayer = prevPlayer.getNext();
 		if (gameState.getMostRecentActionReset() == nextPlayer) {
-			System.out.println("THE ACTION FOR ThIS ROUND IS OVER!!");
+			gameState.setMostRecentActionReset(gameState.getPlayersList().getDealer().getNextInPlay());
 			endOfRoundHandle();
 			return true;
 		}
@@ -78,6 +78,10 @@ public class GameStateManager {
 			case "action":
 				break;
 			case "waiting":
+				nextPlayer.setToAction();
+				gameState.setCurrTurn(nextPlayer);
+				break;
+			case "checked": 
 				nextPlayer.setToAction();
 				gameState.setCurrTurn(nextPlayer);
 				break;
@@ -95,7 +99,6 @@ public class GameStateManager {
 			case "bigBlind":
 				nextPlayer.setToAction();
 				gameState.setCurrTurn(nextPlayer);
-	
 				break;
 			case "allIn":
 				postActionHandle(nextPlayer);
@@ -105,41 +108,45 @@ public class GameStateManager {
 		return false;
 	}
 	
-	private void endOfRoundHandle() {
+	private void endOfRoundHandle() throws Exception {
 		switch(gameState.getRunStatus()) {
 			case "preFlop": 
+				gameState.dealFlop();
+				gameState.setRunStatus("flop");
 				resetBeforeNextRoundOfBetting();
 				break; 
 			case "flop": 
+				gameState.dealTurn();
+				gameState.setRunStatus("turn");
 				resetBeforeNextRoundOfBetting();
 				break; 
 			case "turn": 
+				gameState.dealRiver();
+				gameState.setRunStatus("river");
 				resetBeforeNextRoundOfBetting();
 				break; 
 			case "river": 
-				break; 
+				gameState.setRunStatus("end");
 			case "end": 
 				break;
 		}
 	}
 	
-	private void resetBeforeNextRoundOfBetting() {
+	private void resetBeforeNextRoundOfBetting() throws Exception {
 		List<Player> currPlayers = gameState.getPlayersList().getAllPlayersInList();
 		for(Player player: currPlayers) {
 			player.setCurrAmountThisRound(0);
 		}
+		gameState.setMostRecentBetSize(0);
 		setActionForNextRound(); 
 	}
 	
-	private void setActionForNextRound() {
-		Player currPlayer = gameState.getPlayersList().getDealer().getNext();
+	private void setActionForNextRound() throws Exception {
+		Player currPlayer = gameState.getPlayersList().getDealer().getNextInPlay();
+		gameState.setCurrTurn(currPlayer);
 		boolean isAction = false;
 		do {
-			
-			if(currPlayer.getStatus().equals("called")
-				|| currPlayer.getStatus().equals("bet")
-				|| currPlayer.getStatus().equals("checked")) {
-				
+			if(currPlayer.inHand()){
 				if(!isAction) {
 					currPlayer.setToAction();
 					isAction = true;	
@@ -147,7 +154,8 @@ public class GameStateManager {
 					currPlayer.setToWaiting();
 				}
 			}
-		} while(currPlayer != gameState.getPlayersList().getDealer().getNext());
+			currPlayer = currPlayer.getNext();
+		} while(currPlayer != gameState.getPlayersList().getDealer().getNextInPlay());
 	}
 
 }

@@ -13,7 +13,7 @@ public class Deck {
 		deck = new ArrayList<Card>();
 
 		for (int suit = 1; suit < 5; suit++) {
-			for (int num = 1; num < 15; num++) {
+			for (int num = 2; num < 15; num++) {
 				deck.add(new Card(num, suit));
 			}
 		}

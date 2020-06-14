@@ -1,5 +1,6 @@
 package com.jeffrey.project.poker.model.player;
 
+import com.jeffrey.project.poker.exceptions.GhostHandException;
 import com.jeffrey.project.poker.exceptions.InvalidCallException;
 import com.jeffrey.project.poker.model.card.Hand;
 
@@ -27,6 +28,8 @@ public class Player {
 	public Player(String name) {
 		this.name = name;
 	}
+	
+	
 	
 	public Player(String name, double chipCount) {
 		this.name = name; 
@@ -63,7 +66,14 @@ public class Player {
 		
 	}
 
-	
+	public boolean inHand() {
+		if(status.equals("action") || status.equals("waiting")
+				|| status.equals("bet") || status.equals("called")
+				|| status.equals("checked") || status.equals("bigBlind")) {
+			return true;
+		}
+		return false;
+	}
 	
 	public void subtractChips(double chipLoss) {
 		chipCount -= chipLoss;
@@ -126,7 +136,29 @@ public class Player {
 	public Player getNext() {
 		return next;
 	}
+	
+	public Player getNextInPlay() throws GhostHandException {
+		// Returns the next player that is still in the hand and has opportunity for action
+		
+		Player firstNextPlayer = getNext();
+		Player currPlayer = getNext();
+		
+		while(currPlayer.getNext() != firstNextPlayer) {
+			if(currPlayer.inHand()) {
+				return currPlayer;
+			}
+			currPlayer = currPlayer.getNext();
+		}
+		
+		throw new GhostHandException();
+	
+	}
 
+	public void wipeChips() {
+		this.currAmountThisRound = 0;
+		this.currAmountInPot = 0;
+	}
+	
 	public void setNext(Player next) {
 		this.next = next;
 	}

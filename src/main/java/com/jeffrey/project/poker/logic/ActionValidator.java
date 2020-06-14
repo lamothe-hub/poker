@@ -54,7 +54,7 @@ public class ActionValidator {
 			throw (new PlayerDoesNotExistException(playerName));
 		if (!isPlayersTurn(player))
 			throw (new OutOfTurnException(player));
-		if (!alreadyBetOrCalled(player))
+		if (owesMoneyToContinue(player))
 			throw (new InvalidCheckException(playerName));
 		return player;
 	}
@@ -70,14 +70,17 @@ public class ActionValidator {
 		return player;
 	}
 
-	public boolean alreadyBetOrCalled(Player player) {
-		if (player.getCurrAmountThisRound() == gameState.getMostRecentBetSize()) {
+	public boolean owesMoneyToContinue(Player player) {
+		if (player.getCurrAmountThisRound() < gameState.getMostRecentBetSize()) {
 			return true;
 		}
 		return false;
 	}
 
 	public boolean isValidCallSize(Player player, double amount) {
+		if(amount == 0) {
+			return false;
+		}
 		if (amount <= player.getChipCount()) {
 			if (amount == gameState.getMostRecentBetSize() - player.getCurrAmountThisRound()) {
 				return true;

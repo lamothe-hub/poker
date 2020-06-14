@@ -44,7 +44,11 @@ public class PlayerActionController {
 
 	@GetMapping("/action/{playerName}/call/{amount}")
 	public JsonFriendlyGameState call(@PathVariable String playerName, @PathVariable double amount) {
-		gameStateManager.makeCall(playerName, amount);
+		try {
+			gameStateManager.makeCall(playerName, amount);
+		} catch(Exception ex) {
+			logger.error(ex.getMessage());
+		}
 		JsonFriendlyGameState jsonFriendlyGameState = jsonFriendlyConverter.convert(gameState);
 		return jsonFriendlyGameState;
 	}

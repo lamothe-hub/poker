@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.jeffrey.project.poker.exceptions.GhostHandException;
 import com.jeffrey.project.poker.logic.JsonFriendlyConverter;
 import com.jeffrey.project.poker.logic.JsonFriendlyConverter.JsonFriendlyGameState;
 import com.jeffrey.project.poker.model.GameState;
@@ -27,7 +28,11 @@ public class GameActionController {
 	@GetMapping(value = "/game/startHand", produces = MediaType.APPLICATION_JSON_VALUE)
 	public JsonFriendlyGameState startHand() {
 		// enters the blinds, deals the cards, sets the dealer, etc.
-		gameState.startHand();
+		try {
+			gameState.startHand();
+		} catch(GhostHandException ex) {
+			logger.error(ex.getMessage());
+		}
 		JsonFriendlyGameState jsonFriendlyGameState = jsonFriendlyConverter.convert(gameState);
 		return jsonFriendlyGameState;
 	}
