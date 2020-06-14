@@ -65,7 +65,7 @@ public class HandRankerTests {
 		setDeck('L');
 
 		// add two more playable cards for hole cards:
-		playableCards.add(new Card(1, 1));
+		playableCards.add(new Card(8, 3));
 		playableCards.add(new Card(14, 1));
 		
 		int handScore = handChecker.straitFlushRanker(playableCards);
@@ -91,10 +91,10 @@ public class HandRankerTests {
 		playableCards.add(new Card(5, 2));
 		playableCards.add(new Card(6, 3));
 		
-		int handScore = handChecker.straitFlushRanker(playableCards);
+		int handScore = handChecker.quadsRanker(playableCards);
 		
 		try {
-			assertEquals(FOUR_OF_A_KIND + 13, handScore);
+			assertEquals(FOUR_OF_A_KIND + (2 * 15) + 13, handScore);
 			System.out.println("--- " + testName + " passed successfully.");
 
 		} catch(AssertionError er) {
@@ -114,10 +114,33 @@ public class HandRankerTests {
 		playableCards.add(new Card(5, 2));
 		playableCards.add(new Card(6, 3));
 		
-		int handScore = handChecker.straitFlushRanker(playableCards);
+		int handScore = handChecker.fullHouseRanker(playableCards);
 		
 		try {
 			assertEquals(FULL_HOUSE + (2 * 15) + 13, handScore);
+			System.out.println("--- " + testName + " passed successfully.");
+
+		} catch(AssertionError er) {
+			System.err.println(er.getMessage());
+			throw er;
+		}
+	}
+	
+	@Test
+	public void flushRankerTestA() {
+		String testName = "flushRankerTestA";
+		System.out.println("\n*** Starting " + testName + " - FLUSH 9 High ***");
+		
+		setDeck('O');
+
+		// add two more playable cards for hole cards:
+		playableCards.add(new Card(5, 2));
+		playableCards.add(new Card(6, 2));
+		
+		int handScore = handChecker.flushRanker(playableCards);
+		
+		try {
+			assertEquals(FLUSH + 9, handScore);
 			System.out.println("--- " + testName + " passed successfully.");
 
 		} catch(AssertionError er) {
@@ -137,7 +160,7 @@ public class HandRankerTests {
 		playableCards.add(new Card(8, 2));
 		playableCards.add(new Card(9, 3));
 		
-		int handScore = handChecker.straitFlushRanker(playableCards);
+		int handScore = handChecker.straightRanker(playableCards);
 		
 		try {
 			assertEquals(STRAIGHT + 12, handScore);
@@ -147,6 +170,29 @@ public class HandRankerTests {
 			System.err.println(er.getMessage());
 			throw er;
 		}
+	}
+	
+		@Test
+		public void tripsRankerTestA() {
+			String testName = "tripsRankerTestA";
+			System.out.println("\n*** Starting " + testName + " - Trips 7's with 10 and 9 kickers ***");
+			
+			setDeck('P');
+
+			// add two more playable cards for hole cards:
+			playableCards.add(new Card(7, 2));
+			playableCards.add(new Card(7, 3));
+			
+			int handScore = handChecker.tripsRanker(playableCards);
+			
+			try {
+				assertEquals(THREE_OF_A_KIND + (211 * 7) + (15 * 10) + 9, handScore);
+				System.out.println("--- " + testName + " passed successfully.");
+
+			} catch(AssertionError er) {
+				System.err.println(er.getMessage());
+				throw er;
+			}
 	}
 	
 	@Test
@@ -160,10 +206,10 @@ public class HandRankerTests {
 		playableCards.add(new Card(14, 1));
 		playableCards.add(new Card(5, 1));
 		
-		int handScore = handChecker.straitFlushRanker(playableCards);
+		int handScore = handChecker.straightRanker(playableCards);
 		
 		try {
-			assertEquals(STRAIGHT + 12, handScore);
+			assertEquals(STRAIGHT + 5, handScore);
 			System.out.println("--- " + testName + " passed successfully.");
 
 		} catch(AssertionError er) {
@@ -171,6 +217,75 @@ public class HandRankerTests {
 			throw er;
 		}
 	}
+		
+	@Test
+	public void twoPairRankerTestA() {
+		String testName = "twoPairRankerTestA";
+		System.out.println("\n*** Starting " + testName + " -5's over 4's with J kicker ***");
+		
+		setDeck('Q');
+
+		// add two more playable cards for hole cards:
+		playableCards.add(new Card(5, 2));
+		playableCards.add(new Card(5, 1));
+		
+		int handScore = handChecker.twoPairRanker(playableCards);
+		
+		try {
+			assertEquals(TWO_PAIR + (211 * 5) + (15 * 4) + 11, handScore);
+			System.out.println("--- " + testName + " passed successfully.");
+
+		} catch(AssertionError er) {
+			System.err.println(er.getMessage());
+			throw er;
+		}
+	}
+		
+		@Test
+		public void pairRankerTestA() {
+			String testName = "pairRankerTestA";
+			System.out.println("\n*** Starting " + testName + " 7's with 11, 10, 9 kickers ***");
+			
+			setDeck('R');
+
+			// add two more playable cards for hole cards:
+			playableCards.add(new Card(7, 1));
+			playableCards.add(new Card(7, 2));
+			
+			int handScore = handChecker.pairRanker(playableCards);
+			
+			try {
+				assertEquals(ONE_PAIR + (2955 * 7) + (211 * 11) + (15 * 10) + 9, handScore);
+				System.out.println("--- " + testName + " passed successfully.");
+
+			} catch(AssertionError er) {
+				System.err.println(er.getMessage());
+				throw er;
+			}
+		}
+		
+		@Test
+		public void highCardRankerTestA() {
+			String testName = "highCardTestA";
+			System.out.println("\n*** Starting " + testName + "high cards 12 - 11 - 10 - 8 - 6 ***");
+			
+			setDeck('A');
+
+			// add two more playable cards for hole cards:
+			playableCards.add(new Card(8, 4));
+			playableCards.add(new Card(2, 2));
+			
+			int handScore = handChecker.highCardRanker(playableCards);
+			
+			try {
+				assertEquals((41370 * 12) + (2955 * 11) + (211 * 10) + (15 * 8) + 6, handScore);
+				System.out.println("--- " + testName + " passed successfully.");
+
+			} catch(AssertionError er) {
+				System.err.println(er.getMessage());
+				throw er;
+			}
+		}
 	
 	
 	public void setDeck(char deckChoice) {
@@ -268,7 +383,7 @@ public class HandRankerTests {
 			playableCards.add(new Card(2, 1));
 			playableCards.add(new Card(3, 1)); 
 			playableCards.add(new Card(4, 1));
-			playableCards.add(new Card(7, 3)); 
+			playableCards.add(new Card(5, 1)); 
 			playableCards.add(new Card(7, 4)); 
 			break;
 		case 'M': 
@@ -280,14 +395,40 @@ public class HandRankerTests {
 			playableCards.add(new Card(10, 3)); 
 			break;	
 		case 'N': 
-			// boarded royal flush
 			playableCards.add(null);
 			playableCards.add(null); 
 			playableCards.add(null);
 			playableCards.add(null); 
 			playableCards.add(null); 
 			break;	
+		case 'O': 
+			playableCards.add(new Card(7, 2));
+			playableCards.add(new Card(8, 2)); 
+			playableCards.add(new Card(9, 2));
+			playableCards.add(new Card(14, 3)); 
+			playableCards.add(new Card(14, 1)); 
+			break;
+		case 'P': 
+			playableCards.add(new Card(7, 4));
+			playableCards.add(new Card(10, 2)); 
+			playableCards.add(new Card(9, 2));
+			playableCards.add(new Card(2, 3)); 
+			playableCards.add(new Card(3, 1)); 
+			break;
+		case 'Q': 
+			playableCards.add(new Card(4, 4));
+			playableCards.add(new Card(4, 2)); 
+			playableCards.add(new Card(11, 2));
+			playableCards.add(new Card(2, 3)); 
+			playableCards.add(new Card(3, 1)); 
+			break;
+		case 'R': 
+			playableCards.add(new Card(11, 1));
+			playableCards.add(new Card(10, 2)); 
+			playableCards.add(new Card(9, 3));
+			playableCards.add(new Card(4, 1)); 
+			playableCards.add(new Card(2, 1)); 
+			break;
 		}
 	}
-
 }

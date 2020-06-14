@@ -408,19 +408,27 @@ public class HandChecker {
 		boolean running = true;
 		
 		for (int i = 0; i < playableCards.size(); i++) {
+			running = true;
 			runSize = 1;
 			currNumber = playableCards.get(i).getNumber();
 			runSuit = playableCards.get(i).getSuit();
 			while(running) {
 				running = false;
 				for(int j = 0; j < playableCards.size(); j++) {
-					if( (playableCards.get(j).getNumber() == currNumber + 1) && (playableCards.get(j).getSuit() == runSuit)) {
+					if( (playableCards.get(j).getNumber() == (currNumber + 1)) && (playableCards.get(j).getSuit() == runSuit)) {
 						currNumber = playableCards.get(j).getNumber();
 						runSize += 1;
 						running = true;
-						if(runSize >= 5)
-							highCard = playableCards.get(j).getNumber();
 					}
+				}
+				if(runSize == 4 && currNumber == 5) {
+					for(int j = 0; j < playableCards.size(); j++) {
+						if(playableCards.get(j).getNumber() == 14 && playableCards.get(j).getSuit() == runSuit)
+							highCard = currNumber;
+					}
+				}
+				if(runSize >= 5) {
+					highCard = currNumber;
 				}
 			}
 		}
@@ -435,7 +443,7 @@ public class HandChecker {
 		int returnVal = FOUR_OF_A_KIND;
 		int quadsVal = 0;
 		int highCard = 0;
-		int counter = 0;
+		int counter = 1;
 		int currVal;
 		
 		for(int i = 0; i < playableCards.size(); i++) {
@@ -449,7 +457,7 @@ public class HandChecker {
 				break;
 			}
 			else {
-				counter = 0;
+				counter = 1;
 			}
 		}
 		for(int i = 0; i < playableCards.size(); i++) {
@@ -465,13 +473,15 @@ public class HandChecker {
 		int returnVal = FULL_HOUSE;
 		int tripsVal = 0;
 		int pairVal = 0;
-		int counter = 0;
+		int counter = 1;
 		int currVal;
 		
 		for(int i = 0; i < playableCards.size(); i++) {
 			currVal = playableCards.get(i).getNumber();
-			for(int j = i + 1; j < playableCards.size(); j++) {
-				if(currVal == playableCards.get(j).getNumber())
+			for(int j = 0; j < playableCards.size(); j++) {
+				if(j == i)
+					continue;
+				else if(currVal == playableCards.get(j).getNumber())
 					counter++;
 			}
 			if(counter == 2) {
@@ -480,7 +490,7 @@ public class HandChecker {
 			else if (counter == 3) {
 				tripsVal = playableCards.get(i).getNumber();
 			}
-			counter = 0;		
+			counter = 1;		
 		}
 		
 		returnVal = returnVal + (tripsVal * 15) + pairVal;
@@ -516,34 +526,40 @@ public class HandChecker {
 	
 	public int straightRanker(ArrayList<Card> playableCards) {
 		int returnVal = STRAIGHT;
-		int runSize = 0;
-		int currNumber;
 		int highCard = 0;
-		boolean foundRun = false;
+		int runSize;
+		int currNumber;
+		boolean running = true;
 		
-		//look for a run of length 5
 		for (int i = 0; i < playableCards.size(); i++) {
+			running = true;
 			runSize = 1;
 			currNumber = playableCards.get(i).getNumber();
-			for(int j = i + 1; j < playableCards.size(); j++) {
-				if(playableCards.get(j).getNumber() == currNumber + 1) {
-					currNumber = playableCards.get(j).getNumber();
-					runSize += 1;
+			while(running) {
+				running = false;
+				for(int j = 0; j < playableCards.size(); j++) {
+					if(playableCards.get(j).getNumber() == (currNumber + 1)) {
+						currNumber = playableCards.get(j).getNumber(); 
+						runSize++;
+						running = true;
+					}
 				}
-				else {
-					runSize = 1;
+				if(runSize == 4 && currNumber == 5) {
+					for(int j = 0; j < playableCards.size(); j++) {
+						if(playableCards.get(j).getNumber() == 14) {
+							highCard = currNumber;
+							break;
+						}
+					}
 				}
-				if(runSize == 5) {
-					highCard = playableCards.get(j).getNumber();
-					foundRun = true;
+				if(runSize >= 5) {
+					highCard = currNumber;
 					break;
 				}
 			}
-			if(foundRun)
-				break;
 		}
-		returnVal = returnVal + highCard;
 		
+		returnVal = returnVal + highCard; 
 		return returnVal;
 	}
 	
@@ -553,7 +569,7 @@ public class HandChecker {
 		int high1 = 0;
 		int high2 = 0;
 		int currCard;
-		int counter = 0;
+		int counter = 1;
 		
 		for(int i = 0; i < playableCards.size(); i++) {
 			currCard = playableCards.get(i).getNumber();
@@ -565,7 +581,7 @@ public class HandChecker {
 				tripsVal = playableCards.get(i).getNumber();
 				break;
 			}
-			counter = 0;
+			counter = 1;
 		}
 		for(int i = 0; i < playableCards.size(); i++) {
 			if (playableCards.get(i).getNumber() != tripsVal && playableCards.get(i).getNumber() > high1)
@@ -604,12 +620,18 @@ public class HandChecker {
 			}
 		}
 		
+		if(pairTwoVal > pairOneVal) {
+			int temp = pairOneVal;
+			pairOneVal = pairTwoVal;
+			pairTwoVal = temp;
+		}
 		
 		for(int i = 0; i < playableCards.size(); i++) {
 			if(playableCards.get(i).getNumber() != pairOneVal && playableCards.get(i).getNumber() != pairTwoVal 
 				&& playableCards.get(i).getNumber() > highCard)
 				highCard = playableCards.get(i).getNumber();
 		}
+		//System.out.println("Pair one Val: " + pairOneVal + "  Pair two val: " + pairTwoVal + "  High: " + highCard);
 		returnVal = returnVal + (pairOneVal * 211) + (pairTwoVal * 15) + (highCard);
 		
 		return returnVal;
@@ -621,14 +643,24 @@ public class HandChecker {
 		int high1 = 0;
 		int high2 = 0;
 		int high3 = 0;
+		int currNumber;
+		int counter = 1;
 		
 		for(int i = 0; i < playableCards.size(); i++) {
-			for(int j = i + 1; j < playableCards.size(); j ++){
-				if(playableCards.get(j).getNumber() == playableCards.get(i).getNumber()) {
-					pairVal = playableCards.get(i).getNumber();
-					break;
+			currNumber = playableCards.get(i).getNumber();
+			for(int j = 0; j < playableCards.size(); j ++){
+				if(i == j)
+					continue;
+				else if(playableCards.get(j).getNumber() == currNumber) {
+					counter++;
 				}
 			}
+			if(counter == 2) {
+				pairVal = currNumber;
+				break;
+			}
+			else
+				counter = 1;
 		}
 		
 		for(int i = 0; i < playableCards.size(); i++) {
