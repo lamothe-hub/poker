@@ -36,6 +36,20 @@ public class GameActionController {
 		JsonFriendlyGameState jsonFriendlyGameState = jsonFriendlyConverter.convert(gameState);
 		return jsonFriendlyGameState;
 	}
+	
+	@GetMapping(value = "/game/distributeMoney", produces = MediaType.APPLICATION_JSON_VALUE)
+	public JsonFriendlyGameState distributeMoney() {
+		// enters the blinds, deals the cards, sets the dealer, etc.
+		try {
+			gameState.distributeMoneyToWinners();
+		} catch(Exception ex) {
+			logger.error(ex.getMessage());
+		}
+		JsonFriendlyGameState jsonFriendlyGameState = jsonFriendlyConverter.convert(gameState);
+		return jsonFriendlyGameState;
+	}
+	
+	
 
 	@GetMapping(value = "/game/dealCards", produces = MediaType.APPLICATION_JSON_VALUE)
 	public JsonFriendlyGameState dealCards() {

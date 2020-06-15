@@ -159,6 +159,18 @@ public class PlayersList {
 		} while(currPlayer != dealer);
 		return currList;
 	}
+	
+	public List<Player> getPlayersInPlay() {
+		Player currPlayer = dealer;
+		List<Player> currList = new ArrayList<Player>();
+		do {
+			if(currPlayer.inHand()) {
+				currList.add(currPlayer); 
+			}
+			currPlayer = currPlayer.getNext();
+		} while(currPlayer != dealer);
+		return currList;
+	}
 
 	public Player getMaster() {
 		return master;
@@ -171,6 +183,8 @@ public class PlayersList {
 	public Player getDealer() {
 		return dealer;
 	}
+	
+	
 
 	public void setDealer(Player dealer) {
 		this.dealer = dealer;

@@ -1,22 +1,29 @@
 package com.jeffrey.project.poker.model;
 
 import java.util.ArrayList;
+import java.util.ConcurrentModificationException;
+import java.util.Iterator;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import com.jeffrey.project.poker.exceptions.GhostHandException;
+import com.jeffrey.project.poker.exceptions.PotEmptyException;
 import com.jeffrey.project.poker.handrank.HandChecker;
 import com.jeffrey.project.poker.model.card.Card;
 import com.jeffrey.project.poker.model.card.Deck;
 import com.jeffrey.project.poker.model.player.Player;
 import com.jeffrey.project.poker.model.player.PlayersList;
+import com.jeffrey.project.poker.rest.StateController;
 
 @Component
 public class GameState {
+	private static final Logger logger = LoggerFactory.getLogger(StateController.class);
 
 	PlayersList playersList;
-	String runStatus; // preflop, flop, turn, river, running, paused, notStarted
+	String runStatus; // preflop, flop, turn, river, running, paused, notStarted, onlyOnePlayer
 	Deck deck;
 	List<Card> flop;
 	Card turn;
@@ -86,12 +93,97 @@ public class GameState {
 		return players;
 	}
 	
-	public void distributeMoneyToWinners() {
-		HandChecker handChecker = new HandChecker();
-		ArrayList<ArrayList<Player>> rankingsList; 
-		//rankingsList =  
+	public void distributeMoneyOneRemainingActive() {
+		if(playersList.getPlayersInPlay().size() == 1) {
+			Player player = playersList.getPlayersInPlay().get(0);
+			try {
+				payFromPot(player, pot);
+			} catch(Exception ex) {
+				logger.error(ex.getMessage());
+			}
+		}
 	}
 	
+	public void distributeMoneyToWinners() throws PotEmptyException {
+		
+		HandChecker handChecker = new HandChecker();
+
+		ArrayList<ArrayList<Player>> rankingsList = handChecker.determineWinner(playersList.getPlayersInPlay(), flop, turn, river); 
+		int i = 1;
+		System.out.println("\n");
+		if(rankingsList.size() > 0) {
+			
+			for(ArrayList<Player> tier: rankingsList) {
+				
+				if(pot > 0) {
+					
+					// Handle the all in people - chop the pot 
+					boolean removedAnAllIn = true;
+					while(removedAnAllIn) {
+						removedAnAllIn = false;
+						
+						int numPlayersInTier = tier.size();
+						double maxCanTake = pot / numPlayersInTier;
+
+						// Payout the people who are all in and can only receive a slice of pot
+						
+						try {
+							Iterator<Player> itr = tier.iterator();
+							while(itr.hasNext()) {
+								Player player = itr.next();
+								if(player.isAllIn() && player.getMaxCanEarnThisRound() < maxCanTake ){
+									
+									payFromPot(player, player.getMaxCanEarnThisRound());
+
+									tier.remove(player);
+									removedAnAllIn = true;
+								} 
+							}	
+						} catch(ConcurrentModificationException ex) {
+							System.err.println("First block");
+							System.err.println(ex.getMessage());
+						}
+						
+						
+						
+					}
+					
+					// Now that the all in people are handled, disburse rest of the money for the tier
+					if(!tier.isEmpty()) {
+						int numPlayersInTier = tier.size();
+						double maxCanTake = pot / numPlayersInTier;
+						
+						try {
+							Iterator<Player> itr = tier.iterator();
+							while(itr.hasNext()) {
+								Player player = itr.next();
+								payFromPot(player, maxCanTake);
+								//tier.remove(player);
+							}
+						} catch(ConcurrentModificationException ex) {
+							System.err.println("Second block"); 
+							System.err.println(ex.getMessage());
+						}
+						
+					}
+					
+				}
+				i++;
+			}
+		}
+		
+		
+		
+		
+	}
+	
+	public void payFromPot(Player player, double amount) throws PotEmptyException {
+		if(amount > pot + .001) {
+			throw new PotEmptyException(player, amount, pot);
+		}
+		pot = pot - amount; 
+		player.addChips(amount);
+	}
 
 	public void startHand() throws GhostHandException {
 
@@ -171,12 +263,9 @@ public class GameState {
 		flop.add(deck.nextCard());
 	}
 	
-	public void wipeChips() throws GhostHandException {
+	public void wipeChips() {
 		this.pot = 0; 
 		this.mostRecentBetSize = 0; 
-		if(playersList.getPlayerCount() < 2) {
-			throw new GhostHandException(); 
-		}
 		Player currPlayer = playersList.getMaster(); 
 		do {
 			currPlayer.wipeChips();
@@ -304,6 +393,17 @@ public class GameState {
 
 	public void setMostRecentActionReset(Player mostRecentBettor) {
 		this.mostRecentActionReset = mostRecentBettor;
+	}
+	
+	public void setOnlyOnePlayer() {
+		this.runStatus = "onlyOnePlayer";
+	}
+	
+	public boolean onlyOnePlayer() {
+		if(runStatus.equals("onlyOnePlayer")) {
+			return true;
+		}
+		return false;
 	}
 
 	@Override

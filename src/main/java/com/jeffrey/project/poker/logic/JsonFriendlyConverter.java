@@ -3,15 +3,19 @@ package com.jeffrey.project.poker.logic;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import com.jeffrey.project.poker.model.GameState;
 import com.jeffrey.project.poker.model.card.Card;
 import com.jeffrey.project.poker.model.card.Hand;
 import com.jeffrey.project.poker.model.player.Player;
+import com.jeffrey.project.poker.rest.StateController;
 
 @Component
 public class JsonFriendlyConverter {
+	private static final Logger logger = LoggerFactory.getLogger(StateController.class);
 
 	public JsonFriendlyConverter() {
 	}
@@ -134,8 +138,16 @@ public class JsonFriendlyConverter {
 			this.river = badlyFormattedState.getRiver();
 			this.pot = badlyFormattedState.getPot();
 			this.mostRecentBetSize = badlyFormattedState.getMostRecentBetSize();
-			this.mostRecentActionReset = badlyFormattedState.getMostRecentActionReset().getName(); 
-			this.currTurn = badlyFormattedState.getCurrTurn().getName();
+			if(badlyFormattedState.getMostRecentActionReset() == null) {
+				this.mostRecentActionReset = null;
+			} else {
+				this.mostRecentActionReset = badlyFormattedState.getMostRecentActionReset().getName(); 
+			}
+			if(badlyFormattedState.getCurrTurn() == null) {
+				this.currTurn = null;
+			} else {
+				this.currTurn = badlyFormattedState.getCurrTurn().getName();
+			}
 		}
 
 		public List<JsonFriendlyPlayer> getPlayersList() {

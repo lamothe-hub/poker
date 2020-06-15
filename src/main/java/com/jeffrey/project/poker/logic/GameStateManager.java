@@ -1,15 +1,20 @@
 package com.jeffrey.project.poker.logic;
 
+import java.util.ArrayList;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.jeffrey.project.poker.model.GameState;
 import com.jeffrey.project.poker.model.player.Player;
+import com.jeffrey.project.poker.rest.StateController;
 
 @Component
 public class GameStateManager {
+	private static final Logger logger = LoggerFactory.getLogger(StateController.class);
 
 	@Autowired
 	GameState gameState;
@@ -17,6 +22,9 @@ public class GameStateManager {
 	@Autowired
 	ActionValidator actionValidator;
 
+	List<Player> shovedAllInThisRound = new ArrayList<Player>();
+	
+	
 	public void placeBet(String playerName, double amount) {
 		try {
 			// checks if it is a valid bet and returns player object for given name
@@ -25,6 +33,9 @@ public class GameStateManager {
 			gameState.addToPot(additionalAmount);
 			gameState.setMostRecentBetSize(amount);
 			gameState.setMostRecentActionReset(player);
+			if(player.getChipCount() == 0) {
+				shovedAllInThisRound.add(player);
+			}
 			postActionHandle(player);
 		} catch (Exception ex) {
 			System.out.println(ex);
@@ -36,6 +47,9 @@ public class GameStateManager {
 			Player player = actionValidator.isValidCall(playerName, amount);
 			double amountCalled = player.makeCall(amount, gameState.getMostRecentBetSize());
 			gameState.addToPot(amountCalled);
+			if(player.getChipCount() == 0) {
+				shovedAllInThisRound.add(player);
+			}
 			postActionHandle(player);
 		} catch (Exception ex) {
 			System.out.println(ex);
@@ -61,6 +75,42 @@ public class GameStateManager {
 			System.out.println(ex);
 		}
 	}
+	
+	private void setMaxCanReceive() {
+		if(shovedAllInThisRound.size() != 0) {
+			
+			for(Player allInPlayer: shovedAllInThisRound) {
+				double amountInThisRound = allInPlayer.getCurrAmountThisRound(); 
+				double totalIncreaseFromRound = 0;
+				double totalInThisRound = 0;
+				
+				for(Player player: gameState.getAllPlayers()) {
+					totalInThisRound += player.getCurrAmountThisRound();
+					if(player.getCurrAmountThisRound() > amountInThisRound) {
+						totalIncreaseFromRound += amountInThisRound;
+					} else {
+						totalIncreaseFromRound += player.getCurrAmountThisRound();
+					}
+				}
+				
+				double maxCanEarnThisRound = gameState.getPot() - totalInThisRound + totalIncreaseFromRound;
+				allInPlayer.setMaxCanEarnThisRound(maxCanEarnThisRound);
+				allInPlayer.setAllIn();
+			}
+			
+			shovedAllInThisRound = new ArrayList<Player>();
+		}
+	}
+	
+	private void setInactivePlayers() {
+		for(Player player: gameState.getAllPlayers()) {
+			if(player.isActive()) {
+				if(player.getChipCount() == 0) {
+					player.setInactive();
+				}
+			}
+		}
+	}
 
 	public boolean postActionHandle(Player prevPlayer) throws Exception{
 
@@ -69,8 +119,18 @@ public class GameStateManager {
 		 * must set status of player
 		 */
 		Player nextPlayer = prevPlayer.getNext();
+		
+		if(nextPlayer.getNextInPlay() == nextPlayer) {
+			gameState.setRunStatus("end");
+			gameState.distributeMoneyOneRemainingActive();
+			endOfRoundHandle();
+			return true;
+		}
+		
 		if (gameState.getMostRecentActionReset() == nextPlayer) {
 			gameState.setMostRecentActionReset(gameState.getPlayersList().getDealer().getNextInPlay());
+			setInactivePlayers();
+			setMaxCanReceive();
 			endOfRoundHandle();
 			return true;
 		}
@@ -127,7 +187,10 @@ public class GameStateManager {
 				break; 
 			case "river": 
 				gameState.setRunStatus("end");
+				gameState.distributeMoneyToWinners();
 			case "end": 
+				gameState.getPlayersList().setDealer(gameState.getPlayersList().getDealer().getNextActive());
+				//gameState.startHand();
 				break;
 		}
 	}

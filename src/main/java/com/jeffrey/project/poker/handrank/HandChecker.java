@@ -11,16 +11,20 @@ package com.jeffrey.project.poker.handrank;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
-import com.jeffrey.project.poker.model.GameState;
 import com.jeffrey.project.poker.model.card.Card;
 import com.jeffrey.project.poker.model.card.Hand;
 import com.jeffrey.project.poker.model.player.Player;
+import com.jeffrey.project.poker.rest.StateController;
 
 @Component
 public class HandChecker {
+	
+	private static final Logger logger = LoggerFactory.getLogger(StateController.class);
+
 	public static final int ROYAL_FLUSH       = 9000000;
 	public static final int STRAIGHT_FLUSH    = 8000000; // + highCard
 	public static final int FOUR_OF_A_KIND    = 7000000; // + (Fours Card Rank * 15) + highCard
@@ -30,9 +34,8 @@ public class HandChecker {
 	public static final int THREE_OF_A_KIND   = 3000000; // + (3's value * 211) + ( High1 * 15 ) + High2
 	public static final int TWO_PAIR          = 2000000; // + (High * 211) + (Low * 15) + card
 	public static final int ONE_PAIR          = 1000000; // + (pair * 2955) + high1 * 211 + high2 * 15 + high3
+	
 
-	@Autowired 
-	GameState gameState;
 			
 	//Returns a list of players in the order that they are ranked
 	public ArrayList<ArrayList<Player>> determineWinner(List<Player> allPlayers, List<Card> flop, Card turn, Card river) {

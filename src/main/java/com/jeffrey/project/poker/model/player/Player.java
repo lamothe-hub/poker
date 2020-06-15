@@ -1,15 +1,22 @@
 package com.jeffrey.project.poker.model.player;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.jeffrey.project.poker.exceptions.GhostHandException;
 import com.jeffrey.project.poker.exceptions.InvalidCallException;
+import com.jeffrey.project.poker.exceptions.OnePlayerException;
 import com.jeffrey.project.poker.model.card.Hand;
+import com.jeffrey.project.poker.rest.StateController;
 
 public class Player {
+	private static final Logger logger = LoggerFactory.getLogger(StateController.class);
 
 	String name;
 	double chipCount;
 	double currAmountThisRound;
 	double currAmountInPot;
+	double maxCanEarnThisRound;
 	Hand currentHand;
 	public Player next;
 	String status; 
@@ -137,7 +144,7 @@ public class Player {
 		return next;
 	}
 	
-	public Player getNextInPlay() throws GhostHandException {
+	public Player getNextInPlay() {
 		// Returns the next player that is still in the hand and has opportunity for action
 		
 		Player firstNextPlayer = getNext();
@@ -150,8 +157,25 @@ public class Player {
 			currPlayer = currPlayer.getNext();
 		}
 		
-		throw new GhostHandException();
+		return currPlayer;
 	
+	}
+	
+	public Player getNextActive() throws OnePlayerException {
+		// Returns the next player that is still in the hand and has opportunity for action
+		
+		Player firstNextPlayer = getNext();
+		Player currPlayer = getNext();
+		
+		while(currPlayer.getNext() != firstNextPlayer) {
+			if(currPlayer.isActive()) {
+				return currPlayer;
+			}
+			currPlayer = currPlayer.getNext();
+		}
+		
+		throw new OnePlayerException(currPlayer);
+		
 	}
 
 	public void wipeChips() {
@@ -184,6 +208,38 @@ public class Player {
 	public Hand getHand() {
 		return currentHand;
 	}
+	
+	public void setAllIn() {
+		this.status = "allIn";
+	}
+
+	public double getMaxCanEarnThisRound() {
+		return maxCanEarnThisRound;
+	}
+
+	public boolean isAllIn() {
+		if(status.equals("allIn")) {
+			return true; 
+		}
+		return false;
+	}
+
+	public void setMaxCanEarnThisRound(double maxCanEarnThisRound) {
+		this.maxCanEarnThisRound = maxCanEarnThisRound;
+	}
+	
+	public boolean isActive() {
+		if(status.equals("inactive")) {
+			return false;
+		}
+		return true;
+	}
+	
+	public void setInactive() {
+		status = "inactive";
+	}
+
+
 
 	@Override
 	public String toString() {
