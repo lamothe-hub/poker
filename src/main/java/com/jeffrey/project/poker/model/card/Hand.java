@@ -30,4 +30,22 @@ public class Hand {
 	public Card getCardB() {
 		return cardB;
 	}
+	
+	public Hand clone() {
+		Hand handClone;
+		if(cardA != null && cardB != null) {
+			Card cloneCardA = cardA.clone(); 
+			Card cloneCardB = cardB.clone();
+			handClone = new Hand(cloneCardA, cloneCardB);
+		} else {
+			handClone = new Hand();
+		}
+		
+		return handClone;
+	}
+	
+	public void wipeHand() {
+		cardA = null; 
+		cardB = null;
+	}
 }

@@ -32,5 +32,12 @@ public class Card {
 	public String toString() {
 		return number + " of " + suit;
 	}
+	
+	public Card clone() {
+		Card cardClone = new Card(); 
+		cardClone.setNumber(number);
+		cardClone.setSuit(suit);
+		return cardClone;
+	}
 
 }

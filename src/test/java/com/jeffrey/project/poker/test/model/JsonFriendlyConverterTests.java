@@ -23,9 +23,14 @@ public class JsonFriendlyConverterTests {
 		JsonFriendlyConverter jsonFriendlyConverter = new JsonFriendlyConverter();
 
 		GameState testState = new GameState(); 
-		testState.addPlayer("Jeffrey",  100); 
-		testState.addPlayer("Johnny",  100); 
-		testState.addPlayer("Mark", 100);
+		try {
+			testState.addPlayer("Jeffrey",  100); 
+			testState.addPlayer("Johnny",  100); 
+			testState.addPlayer("Mark", 100);
+		} catch(Exception ex) {
+			System.out.println(ex.getMessage());
+		}
+		
 		testState.setRunStatus("running");
 		System.out.println("About to call the converter component");
 		JsonFriendlyGameState test = jsonFriendlyConverter.convert(testState);

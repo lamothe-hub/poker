@@ -38,7 +38,7 @@ public class JsonFriendlyConverter {
 			this.chipCount = player.getChipCount();
 			this.currAmountThisRound = player.getCurrAmountThisRound();
 			this.currAmountInPot = player.getCurrAmountInPot();
-			this.currentHand = player.getCurrentHand();
+			this.currentHand = player.getCurrentHand().clone();
 			this.status = player.getStatus();
 			this.nextPlayer = player.getNext().getName();
 		}
@@ -150,6 +150,14 @@ public class JsonFriendlyConverter {
 			}
 		}
 
+		public void hideOtherPlayersCards(String playerName) {
+			for(JsonFriendlyPlayer player: playersList) {
+				if(!player.getName().equals(playerName)) {
+					player.getCurrentHand().wipeHand();
+				}
+			}
+		}
+		
 		public List<JsonFriendlyPlayer> getPlayersList() {
 			return playersList;
 		}

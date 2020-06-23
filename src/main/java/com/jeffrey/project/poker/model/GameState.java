@@ -10,6 +10,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import com.jeffrey.project.poker.exceptions.GhostHandException;
+import com.jeffrey.project.poker.exceptions.PlayerAlreadyExistsException;
 import com.jeffrey.project.poker.exceptions.PotEmptyException;
 import com.jeffrey.project.poker.handrank.HandChecker;
 import com.jeffrey.project.poker.model.card.Card;
@@ -34,7 +35,6 @@ public class GameState {
 	double pot;
 	double mostRecentBetSize;
 	Player mostRecentActionReset;
-
 	public GameState() {
 
 //		this.playersList = new PlayersList();
@@ -51,18 +51,15 @@ public class GameState {
 		this.smallBlind = 1;
 		this.bigBlind = 2;
 		this.pot = 0;
-		addPlayer("Jeffrey", 100);
-		addPlayer("Johnny", 100);
-		addPlayer("Mark", 100);
-		addPlayer("Jared", 105);
+
+		
 	}
 
-	public int addPlayer(String name, double chipCount) {
+	public void addPlayer(String name, double chipCount) throws PlayerAlreadyExistsException {
 		if (playersList.getPlayerByName(name) == null) {
 			playersList.addPlayer(name, chipCount);
-			return 1;
 		} else {
-			return -1;
+			throw new PlayerAlreadyExistsException(name);
 		}
 	}
 
