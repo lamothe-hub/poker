@@ -34,9 +34,7 @@ public class JsonFriendlyConverterTests {
 		testState.setRunStatus("running");
 		System.out.println("About to call the converter component");
 		JsonFriendlyGameState test = jsonFriendlyConverter.convert(testState);
-		System.out.println(test.getPlayersList());
-
-		
+		System.out.println(test.getPlayersList());	
 	} 
 
 }

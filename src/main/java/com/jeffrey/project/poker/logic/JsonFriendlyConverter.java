@@ -7,6 +7,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
+import com.jeffrey.project.poker.exceptions.PlayerDoesNotExistException;
 import com.jeffrey.project.poker.model.GameState;
 import com.jeffrey.project.poker.model.card.Card;
 import com.jeffrey.project.poker.model.card.Hand;
@@ -128,7 +129,7 @@ public class JsonFriendlyConverter {
 					currPlayer = currPlayer.getNext();
 				} while (currPlayer != badlyFormattedState.getPlayersList().getMaster());
 			}
-
+		
 			this.runStatus = badlyFormattedState.getRunStatus();
 			this.playersList = currJsonFriendlyList;
 			this.dealerName = badlyFormattedState.getPlayersList().getDealer().getName();
@@ -150,12 +151,22 @@ public class JsonFriendlyConverter {
 			}
 		}
 
-		public void hideOtherPlayersCards(String playerName) {
-			for(JsonFriendlyPlayer player: playersList) {
-				if(!player.getName().equals(playerName)) {
-					player.getCurrentHand().wipeHand();
+		public void hideOtherPlayersCards(String playerName) throws PlayerDoesNotExistException {
+			boolean playerExists = false;
+			
+			if(playersList != null) {
+				for(JsonFriendlyPlayer player: playersList) {
+					if(!player.getName().equals(playerName)) {
+						player.getCurrentHand().wipeHand();
+					} else {
+						playerExists = true;
+					}
 				}
 			}
+			if(!playerExists) {
+				throw new PlayerDoesNotExistException(playerName);
+			}
+			
 		}
 		
 		public List<JsonFriendlyPlayer> getPlayersList() {

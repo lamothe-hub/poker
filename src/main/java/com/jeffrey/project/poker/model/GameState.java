@@ -30,6 +30,7 @@ public class GameState {
 	Card turn;
 	Card river;
 	Player currTurn;
+	double maxBuyIn;
 	double smallBlind;
 	double bigBlind;
 	double pot;
@@ -53,6 +54,19 @@ public class GameState {
 		this.pot = 0;
 
 		
+	}
+	
+	public void reset() {
+		this.playersList = new PlayersList();
+		this.runStatus = "notStarted";
+		this.deck = new Deck();
+		this.flop = new ArrayList<Card>();
+		this.turn = null;
+		this.river = null;
+		this.runStatus = "running";
+		this.smallBlind = 1;
+		this.bigBlind = 2;
+		this.pot = 0;
 	}
 
 	public void addPlayer(String name, double chipCount) throws PlayerAlreadyExistsException {
@@ -386,6 +400,14 @@ public class GameState {
 
 	public Player getMostRecentActionReset() {
 		return mostRecentActionReset;
+	}
+
+	public double getMaxBuyIn() {
+		return maxBuyIn;
+	}
+
+	public void setMaxBuyIn(double maxBuyIn) {
+		this.maxBuyIn = maxBuyIn;
 	}
 
 	public void setMostRecentActionReset(Player mostRecentBettor) {
