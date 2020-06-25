@@ -20,6 +20,7 @@ public class Player {
 	Hand currentHand;
 	public Player next;
 	String status; 
+	int hashCode;
 
 	/*
 	 * Status options:
@@ -48,6 +49,18 @@ public class Player {
 		this.currentHand = new Hand();
 	}
 	
+	public Player(String name, double chipCount, int hashCode) {
+		this.name = name; 
+		this.chipCount = chipCount; 
+		this.currAmountThisRound = 0; 
+		this.currAmountInPot = 0;
+		this.next = null;
+		this.status = "NA";
+		this.currentHand = new Hand();
+		this.hashCode = hashCode;
+		
+	}
+	
 	public double placeBet(double amount) {
 		// real amount accounts for chipCount jsut to make sure we didnt miss anything
 		double additionalAmount = amount - currAmountThisRound;
@@ -61,9 +74,14 @@ public class Player {
 	
 	public double makeCall(double amount, double mostRecentBetSize) {
 		double realAmount;
-		realAmount = mostRecentBetSize - currAmountThisRound;
-		if(realAmount != amount) {
-			throw(new InvalidCallException(name, amount));
+		
+		if(mostRecentBetSize - currAmountThisRound > chipCount) {
+			realAmount = chipCount;
+		} else {
+			realAmount = mostRecentBetSize - currAmountThisRound;
+			if(realAmount != amount) {
+				throw(new InvalidCallException(name, amount));
+			}
 		}
 		chipCount -= realAmount; 
 		currAmountThisRound += realAmount; 
@@ -201,6 +219,14 @@ public class Player {
 	public double getCurrAmountInPot() {
 		return currAmountInPot;
 	}
+	
+	
+
+	public int getHashCode() {
+		return hashCode;
+	}
+
+
 
 	public void setCurrAmountInPot(double currAmountInPot) {
 		this.currAmountInPot = currAmountInPot;

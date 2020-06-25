@@ -28,35 +28,47 @@ public class ManagementController {
 	@Autowired
 	JsonFriendlyConverter jsonFriendlyConverter;
 	
+	
+	@GetMapping(value = "/management/startHand/{playerName}/{token}", produces = MediaType.APPLICATION_JSON_VALUE)
+	public ResponseEntity<?> startHand(@PathVariable String playerName, @PathVariable int token) {
+
+		ResponseEntity<?> response;
+		
+		try {
+			gameState.startHand();
+			JsonFriendlyGameState jsonFriendlyGameState = jsonFriendlyConverter.convert(gameState);
+			jsonFriendlyGameState.hideOtherPlayersCards(playerName, token);
+			response = new ResponseEntity<JsonFriendlyGameState>(jsonFriendlyGameState, HttpStatus.ACCEPTED);
+		} catch(Exception ex) {
+			logger.error(ex.getMessage());
+			response = new ResponseEntity<String>(ex.getMessage(), HttpStatus.FORBIDDEN);
+		}
+		return response;
+	}
+	
 	@GetMapping(value = "/management/addPlayer/{playerName}/{buyinAmount}", produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<?> addPlayer(@PathVariable String playerName, @PathVariable double buyinAmount) {
 		// enters the blinds, deals the cards, sets the dealer, etc.
 		ResponseEntity<?> response;
 		try {
-			gameState.addPlayer(playerName, buyinAmount);		
-			JsonFriendlyGameState jsonFriendlyGameState = jsonFriendlyConverter.convert(gameState);
-			response = new ResponseEntity<JsonFriendlyGameState>(jsonFriendlyGameState,HttpStatus.ACCEPTED);
+			int hashCode = gameState.addPlayer(playerName, buyinAmount);		
+			response = new ResponseEntity<Integer>(hashCode,HttpStatus.ACCEPTED);
 		} catch(PlayerAlreadyExistsException ex) {
-			JsonFriendlyGameState jsonFriendlyGameState = jsonFriendlyConverter.convert(gameState);
 			response = new ResponseEntity<String>(ex.getMessage(),HttpStatus.BAD_REQUEST);
 		}
 		return response;
-
 	}
-	
 	
 	@GetMapping(value = "/management/createGame/{playerName}/{buyinAmount}/{maxBuyIn}", produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<?> createGame(@PathVariable String playerName, @PathVariable double buyinAmount, @PathVariable double maxBuyIn) {
 		ResponseEntity<?> response;
 		try {
 			gameState.reset();
-			gameState.addPlayer(playerName, buyinAmount);
+			int hashCode = gameState.addPlayer(playerName, buyinAmount);
 			gameState.setMaxBuyIn(maxBuyIn);
-			JsonFriendlyGameState jsonFriendlyGameState = jsonFriendlyConverter.convert(gameState);
-			response = new ResponseEntity<JsonFriendlyGameState>(jsonFriendlyGameState,HttpStatus.ACCEPTED);
+			response = new ResponseEntity<Integer>(hashCode,HttpStatus.ACCEPTED);
 		} catch(Exception ex) {
 			logger.error(ex.getMessage());
-			JsonFriendlyGameState jsonFriendlyGameState = jsonFriendlyConverter.convert(gameState);
 			response = new ResponseEntity<String>(ex.getMessage(),HttpStatus.BAD_REQUEST);
 		}
 		return response;

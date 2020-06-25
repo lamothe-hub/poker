@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.jeffrey.project.poker.exceptions.PlayerDoesNotExistException;
@@ -18,6 +19,9 @@ import com.jeffrey.project.poker.rest.StateController;
 public class JsonFriendlyConverter {
 	private static final Logger logger = LoggerFactory.getLogger(StateController.class);
 
+	@Autowired 
+	GameState gameState;
+	
 	public JsonFriendlyConverter() {
 	}
 
@@ -151,20 +155,25 @@ public class JsonFriendlyConverter {
 			}
 		}
 
-		public void hideOtherPlayersCards(String playerName) throws PlayerDoesNotExistException {
+		public void hideOtherPlayersCards(String playerName, int token) throws PlayerDoesNotExistException {
 			boolean playerExists = false;
-			
+			boolean isEndOfRound = false;
+			if(gameState.getRunStatus().equals("end")) {
+				isEndOfRound = true;
+			}
 			if(playersList != null) {
 				for(JsonFriendlyPlayer player: playersList) {
-					if(!player.getName().equals(playerName)) {
-						player.getCurrentHand().wipeHand();
-					} else {
+					if(player.getName().equals(playerName) && gameState.getPlayersList().getPlayerByName(playerName).getHashCode() == token) {
 						playerExists = true;
+					} else {
+						if(!isEndOfRound) {
+							player.getCurrentHand().wipeHand();
+						}
 					}
 				}
 			}
 			if(!playerExists) {
-				throw new PlayerDoesNotExistException(playerName);
+				throw new PlayerDoesNotExistException(playerName + " - " + token);
 			}
 			
 		}

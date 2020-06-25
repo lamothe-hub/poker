@@ -6,6 +6,7 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.jeffrey.project.poker.exceptions.PlayerDoesNotExistException;
 import com.jeffrey.project.poker.rest.StateController;
 
 /*
@@ -27,10 +28,18 @@ public class PlayersList {
 		master = null;
 	}
 
-	public void addPlayer(String name, double chipCount) {
+	public int addPlayer(String name, double chipCount) {
 		// TODO: Check if player with that name exists before adding- throw error;
-		Player newPlayer = new Player(name, chipCount);
-
+		
+		// Generate hash code...
+		
+		String saltedString = name + java.time.LocalTime.now();
+		int hash = saltedString.hashCode();
+		
+		logger.info("Adding player: [ " + name + " ] with hash: [ " + hash + " ].");
+		
+		Player newPlayer = new Player(name, chipCount, hash);
+	
 		if (master == null) {
 			master = newPlayer;
 			dealer = newPlayer;
@@ -43,12 +52,28 @@ public class PlayersList {
 			currPlayer.next = newPlayer;
 			newPlayer.next = master;
 		}
+		
+		return hash;
 	}
 
+	public boolean checkValidHash(String playerName, int hashCode) throws PlayerDoesNotExistException {
+		Player currPlayer = getPlayerByName(playerName);
+		if(currPlayer == null) {
+			throw new PlayerDoesNotExistException(playerName);
+		}
+		if(currPlayer.getHashCode() == hashCode) {
+			return true;
+		} 
+		return false;
+	}
+	
 	public void setAllToWaiting() {
 		Player currPlayer = dealer;
 		do {
-			currPlayer.setToWaiting();
+
+			if(currPlayer.isActive()) {
+				currPlayer.setToWaiting();
+			}
 			currPlayer = currPlayer.next;
 		} while (currPlayer != dealer);
 	}

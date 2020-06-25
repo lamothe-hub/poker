@@ -68,10 +68,23 @@ public class GameState {
 		this.bigBlind = 2;
 		this.pot = 0;
 	}
+	
+	public void dealRestOfCards() {
+		if(flop.isEmpty()) {
+			dealFlop();
+		}
+		if(turn == null) {
+			dealTurn();
+		}
+		if(river == null) {
+			dealRiver();
+		}
+	}
 
-	public void addPlayer(String name, double chipCount) throws PlayerAlreadyExistsException {
+	public int addPlayer(String name, double chipCount) throws PlayerAlreadyExistsException {
 		if (playersList.getPlayerByName(name) == null) {
-			playersList.addPlayer(name, chipCount);
+			int hashCode = playersList.addPlayer(name, chipCount);
+			return hashCode;
 		} else {
 			throw new PlayerAlreadyExistsException(name);
 		}
@@ -198,7 +211,13 @@ public class GameState {
 
 	public void startHand() throws GhostHandException {
 
+		
 		playersList.setAllToWaiting();
+		
+		if(this.getPlayersList().getPlayersInPlay().size() < 2) {
+			throw new GhostHandException();
+		}
+
 
 		runStatus = "preFlop";
 

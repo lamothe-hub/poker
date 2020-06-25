@@ -12,6 +12,8 @@ import com.jeffrey.project.poker.exceptions.PlayerDoesNotExistException;
 import com.jeffrey.project.poker.model.GameState;
 import com.jeffrey.project.poker.model.player.Player;
 
+import ch.qos.logback.classic.Logger;
+
 @Component
 public class ActionValidator {
 
@@ -25,11 +27,11 @@ public class ActionValidator {
 	@Autowired
 	GameState gameState;
 
-	public Player isValidBet(String playerName, double amount) {
+	public Player isValidBet(String playerName, int token, double amount) {
 		// check if it is that player's turn and if it is a valid betsize
 		Player player = gameState.getPlayersList().getPlayerByName(playerName);
-		if (player == null)
-			throw (new PlayerDoesNotExistException(playerName));
+		if (player == null || player.getHashCode() != token)
+			throw (new PlayerDoesNotExistException(playerName + " - " + token));
 		if (!isPlayersTurn(player))
 			throw (new OutOfTurnException(player));
 		if (!isValidBetSize(player, amount))
@@ -37,21 +39,24 @@ public class ActionValidator {
 		return player;
 	}
 
-	public Player isValidCall(String playerName, double amount) {
+	public Player isValidCall(String playerName, int token, double amount) {
 		Player player = gameState.getPlayersList().getPlayerByName(playerName);
-		if (player == null)
-			throw (new PlayerDoesNotExistException(playerName));
+		if (player == null || player.getHashCode() != token)
+			throw (new PlayerDoesNotExistException(playerName + " - " + token));
 		if (!isPlayersTurn(player))
 			throw (new OutOfTurnException(player));
-		if (!isValidCallSize(player, amount))
+		if (!isValidCallSize(player, amount)) {
+			System.out.println("I guess were gonna throw an invalid thing here");
 			throw (new InvalidCallException(playerName, amount));
+		}
+			
 		return player;
 	}
 
-	public Player isValidCheck(String playerName) {
+	public Player isValidCheck(String playerName, int token) {
 		Player player = gameState.getPlayersList().getPlayerByName(playerName);
-		if (player == null)
-			throw (new PlayerDoesNotExistException(playerName));
+		if (player == null || player.getHashCode() != token)
+			throw (new PlayerDoesNotExistException(playerName + " - " + token));
 		if (!isPlayersTurn(player))
 			throw (new OutOfTurnException(player));
 		if (owesMoneyToContinue(player))
@@ -59,10 +64,10 @@ public class ActionValidator {
 		return player;
 	}
 
-	public Player isValidFold(String playerName) {
+	public Player isValidFold(String playerName, int token) {
 		Player player = gameState.getPlayersList().getPlayerByName(playerName);
-		if (player == null)
-			throw (new PlayerDoesNotExistException(playerName));
+		if (player == null || player.getHashCode() != token)
+			throw (new PlayerDoesNotExistException(playerName + " - " + token));
 		if (!isPlayersTurn(player))
 			throw (new OutOfTurnException(player));
 		if (player.getStatus() == "allIn")
@@ -84,7 +89,8 @@ public class ActionValidator {
 		if (amount <= player.getChipCount()) {
 			if (amount == gameState.getMostRecentBetSize() - player.getCurrAmountThisRound()) {
 				return true;
-			} else if (amount == player.getChipCount() - player.getCurrAmountThisRound()) {
+			} else if (amount == player.getChipCount()) {
+				System.out.println("amount: " + amount + ", chipCount - currAmountthisround: " + ( player.getChipCount() - player.getCurrAmountThisRound()));
 				return true;
 			}
 		}

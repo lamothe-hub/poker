@@ -25,55 +25,44 @@ public class GameStateManager {
 	List<Player> shovedAllInThisRound = new ArrayList<Player>();
 	
 	
-	public void placeBet(String playerName, double amount) {
-		try {
-			// checks if it is a valid bet and returns player object for given name
-			Player player = actionValidator.isValidBet(playerName, amount);
-			double additionalAmount = player.placeBet(amount);
-			gameState.addToPot(additionalAmount);
-			gameState.setMostRecentBetSize(amount);
-			gameState.setMostRecentActionReset(player);
-			if(player.getChipCount() == 0) {
-				shovedAllInThisRound.add(player);
-			}
-			postActionHandle(player);
-		} catch (Exception ex) {
-			System.out.println(ex);
+	public void placeBet(String playerName, int token, double amount) throws Exception {
+		// checks if it is a valid bet and returns player object for given name
+		Player player = actionValidator.isValidBet(playerName, token, amount);
+		double additionalAmount = player.placeBet(amount);
+		gameState.addToPot(additionalAmount);
+		gameState.setMostRecentBetSize(amount);
+		gameState.setMostRecentActionReset(player);
+		if(player.getChipCount() == 0) {
+			player.setAllIn();
+			shovedAllInThisRound.add(player);
 		}
+		postActionHandle(player);
 	}
 
-	public void makeCall(String playerName, double amount) throws Exception {
-		try {
-			Player player = actionValidator.isValidCall(playerName, amount);
-			double amountCalled = player.makeCall(amount, gameState.getMostRecentBetSize());
-			gameState.addToPot(amountCalled);
-			if(player.getChipCount() == 0) {
-				shovedAllInThisRound.add(player);
-			}
-			postActionHandle(player);
-		} catch (Exception ex) {
-			System.out.println(ex);
+	public void makeCall(String playerName, int token, double amount) throws Exception {
+
+		Player player = actionValidator.isValidCall(playerName, token, amount);
+		double amountCalled = player.makeCall(amount, gameState.getMostRecentBetSize());
+		gameState.addToPot(amountCalled);
+		if(player.getChipCount() == 0) {
+			player.setAllIn();
+			shovedAllInThisRound.add(player);
 		}
+		postActionHandle(player);
+
 	}
 
-	public void check(String playerName) {
-		try {
-			Player player = actionValidator.isValidCheck(playerName);
-			player.setToChecked();
-			postActionHandle(player);
-		} catch (Exception ex) {
-			System.out.println(ex);
-		}
+	public void check(String playerName, int token ) throws Exception{
+		Player player = actionValidator.isValidCheck(playerName, token);
+		player.setToChecked();
+		postActionHandle(player);
+
 	}
 
-	public void fold(String playerName) {
-		try {
-			Player player = actionValidator.isValidFold(playerName);
-			player.setToFolded();
-			postActionHandle(player);
-		} catch (Exception ex) {
-			System.out.println(ex);
-		}
+	public void fold(String playerName, int token ) throws Exception {
+		Player player = actionValidator.isValidFold(playerName, token);
+		player.setToFolded();
+		postActionHandle(player);
 	}
 	
 	private void setMaxCanReceive() {
@@ -104,6 +93,9 @@ public class GameStateManager {
 	
 	private void setInactivePlayers() {
 		for(Player player: gameState.getAllPlayers()) {
+			if(player.isAllIn() && player.getChipCount() > 0) {
+				player.setToWaiting();
+			}
 			if(player.isActive()) {
 				if(player.getChipCount() == 0) {
 					player.setInactive();
@@ -112,7 +104,7 @@ public class GameStateManager {
 		}
 	}
 
-	public boolean postActionHandle(Player prevPlayer) throws Exception{
+	public boolean postActionHandle(Player prevPlayer) throws Exception {
 
 		/*
 		 * this method will change the status of the next player before entering this,
@@ -121,15 +113,17 @@ public class GameStateManager {
 		Player nextPlayer = prevPlayer.getNext();
 		
 		if(nextPlayer.getNextInPlay() == nextPlayer) {
+			gameState.dealRestOfCards();
 			gameState.setRunStatus("end");
 			gameState.distributeMoneyOneRemainingActive();
+			setInactivePlayers();
 			endOfRoundHandle();
 			return true;
 		}
 		
 		if (gameState.getMostRecentActionReset() == nextPlayer) {
 			gameState.setMostRecentActionReset(gameState.getPlayersList().getDealer().getNextInPlay());
-			setInactivePlayers();
+			
 			setMaxCanReceive();
 			endOfRoundHandle();
 			return true;

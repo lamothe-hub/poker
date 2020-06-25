@@ -56,13 +56,13 @@ public class StateController {
 	}
 	
 	@GetMapping(value = "/state/{playerName}/{token}", produces = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<?> getCurrentState(@PathVariable String playerName, @PathVariable String token) {
+	public ResponseEntity<?> getCurrentState(@PathVariable String playerName, @PathVariable int token) {
 		
 		ResponseEntity<?> response;
 		
 		try {
 			JsonFriendlyGameState jsonFriendlyGameState = jsonFriendlyConverter.convert(gameState);
-			jsonFriendlyGameState.hideOtherPlayersCards(playerName);
+			jsonFriendlyGameState.hideOtherPlayersCards(playerName, token);
 			response = new ResponseEntity<JsonFriendlyGameState>(jsonFriendlyGameState, HttpStatus.ACCEPTED);
 		} catch(Exception ex) {
 			logger.error(ex.getMessage());
