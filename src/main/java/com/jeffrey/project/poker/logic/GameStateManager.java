@@ -24,6 +24,7 @@ public class GameStateManager {
 
 	List<Player> shovedAllInThisRound = new ArrayList<Player>();
 	
+	boolean lastTurnThisRound = false;
 	
 	public void placeBet(String playerName, int token, double amount) throws Exception {
 		// checks if it is a valid bet and returns player object for given name
@@ -112,13 +113,19 @@ public class GameStateManager {
 		 */
 		Player nextPlayer = prevPlayer.getNext();
 		
-		if(nextPlayer.getNextInPlay() == nextPlayer) {
-			gameState.dealRestOfCards();
-			gameState.setRunStatus("end");
-			gameState.distributeMoneyOneRemainingActive();
-			setInactivePlayers();
-			endOfRoundHandle();
-			return true;
+		if(nextPlayer.getNextInPlay() == nextPlayer || lastTurnThisRound) {
+			
+			if(nextPlayer.getCurrAmountThisRound() >= gameState.getMostRecentBetSize()) {
+				lastTurnThisRound = true;
+			} else {
+				gameState.dealRestOfCards();
+				gameState.setRunStatus("end");
+				gameState.distributeMoneyOneRemainingActive();
+				setInactivePlayers();
+				endOfRoundHandle();
+				return true;
+			}
+			
 		}
 		
 		if (gameState.getMostRecentActionReset() == nextPlayer) {
@@ -128,6 +135,7 @@ public class GameStateManager {
 			endOfRoundHandle();
 			return true;
 		}
+		
 		switch (nextPlayer.getStatus()) {
 			case "action":
 				break;

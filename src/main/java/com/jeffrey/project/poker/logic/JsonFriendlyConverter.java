@@ -172,6 +172,7 @@ public class JsonFriendlyConverter {
 					}
 				}
 			}
+			isEndOfRound = false;
 			if(!playerExists) {
 				throw new PlayerDoesNotExistException(playerName + " - " + token);
 			}
